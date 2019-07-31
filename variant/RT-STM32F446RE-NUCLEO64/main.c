@@ -24,9 +24,14 @@ int main(void) {
     halInit();
     chSysInit();
 
+    // ini the logging system early on.
     log_init(LOG_ALL);
+
+    // start and register a serial logger.
     sdStart(&SD2, NULL);
     log_serialInit((BaseSequentialStream *)&SD2);
+
+    // and now the file
 
 
 

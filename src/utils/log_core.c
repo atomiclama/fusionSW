@@ -1,9 +1,3 @@
-/*
- * log.c
- *
- *  Created on: 15 Dec 2015
- *      Author: gb7beda1
- */
 
 #include "hal.h"
 #include "chprintf.h"
@@ -40,12 +34,11 @@ int log_registerLogger(LOGGER logger) {
     return 0;
 }
 
-// enhance
 void log_msg(LOG_LEVEL level, const char *msg, ...) {
 
     if (level <= log_level) {
-        msgString[0]= '\n';
-        msgString[1]= '\r';
+        msgString[0] = '\n';
+        msgString[1] = '\r';
         chsnprintf(&msgString[2], 126, msg);
 
         for (int i = 0; i < MAX_LOGGER; i++) {
