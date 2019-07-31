@@ -1,18 +1,18 @@
-[submodule "src/ext/chibios"]
+[submodule "chibios"]
 	path = src/ext/chibios
 	url = https://github.com/ChibiOS/ChibiOS.git
-[submodule "src/ext/chibios-contrib"]
+[submodule "chibios-contrib"]
 	path = src/ext/chibios-contrib
 	url = https://github.com/ChibiOS/ChibiOS-Contrib.git
-[submodule "src/ext/betaflight"]
+[submodule "betaflight"]
 	path = src/ext/betaflight
 	url = https://github.com/betaflight/betaflight.git
-[submodule "src/ext/deviation"]
+[submodule "deviation"]
 	path = src/ext/deviation
 	url = https://github.com/DeviationTX/deviation.git
-[submodule "src/ext/opentx"]
+[submodule "opentx"]
 	path = src/ext/opentx
 	url = https://github.com/opentx/opentx.git
-[submodule "src/ext/openground"]
+[submodule "openground"]
 	path = src/ext/openground
 	url = https://github.com/fishpepper/OpenGround.git
