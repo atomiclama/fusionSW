@@ -19,3 +19,6 @@
 [submodule "loralib"]
 	path = src/ext/loralib
 	url = https://github.com/jgromes/LoRaLib.git
+[submodule "lora-C-lib"]
+	path = src/ext/loraClib
+	url = https://github.com/Inteform/esp32-lora-library.git
