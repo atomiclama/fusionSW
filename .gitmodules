@@ -16,3 +16,6 @@
 [submodule "openground"]
 	path = src/ext/openground
 	url = https://github.com/fishpepper/OpenGround.git
+[submodule "loralib"]
+	path = src/ext/loralib
+	url = https://github.com/jgromes/LoRaLib.git
