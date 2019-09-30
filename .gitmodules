@@ -22,3 +22,6 @@
 [submodule "lora-C-lib"]
 	path = src/ext/loraClib
 	url = https://github.com/Inteform/esp32-lora-library.git
+[submodule "src/ext/u360gts"]
+	path = src/ext/u360gts
+	url = https://github.com/raul-ortega/u360gts.git
