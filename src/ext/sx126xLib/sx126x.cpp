@@ -13,7 +13,6 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Authors: Miguel Luis, Gregory Cristian
 */
-#include "mbed.h"
 #include "sx126x.h"
 #include "sx126x-hal.h"
 
