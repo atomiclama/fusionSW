@@ -9,7 +9,13 @@
 #define LIB_INT_LOG_H_LOG_FILE_H_
 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
+#ifdef __cplusplus
+}
+#endif
 
 
 #endif /* LIB_INT_LOG_H_LOG_FILE_H_ */

@@ -33,18 +33,19 @@ int main(void) {
 
     // and now the file
 
-
-
     inThread_ini();
     modemThread_ini();
     outThread_ini();
+    
+    testThread_ini();
 
+    uint32_t cnt=0;
 
     while (true) {
         if (!palReadPad(GPIOC, GPIOC_BUTTON)) {
             // Handle power down
             // wait for all threads to complete
-            log_msg(LOG_ALL, "button pressed");
+            log_msg(LOG_ALL, "button pressed: %X", cnt++);
         }
         chThdSleepMilliseconds(500);
     }

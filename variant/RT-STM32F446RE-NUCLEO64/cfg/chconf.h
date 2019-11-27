@@ -28,6 +28,13 @@
 #ifndef CHCONF_H
 #define CHCONF_H
 
+// test from forum
+// #define USE_PROCESS_STACKSIZE 0x400
+// #define USE_EXCEPTIONS_STACKSIZE  0x800
+// #define PORT_IDLE_THREAD_STACK_SIZE 32
+// #define PORT_INT_REQUIRED_STACK 256
+
+
 #define _CHIBIOS_RT_CONF_
 #define _CHIBIOS_RT_CONF_VER_6_0_
 
@@ -120,7 +127,7 @@
  * @note    Requires @p CH_CFG_USE_MEMCORE.
  */
 #if !defined(CH_CFG_MEMCORE_SIZE)
-#define CH_CFG_MEMCORE_SIZE                 0
+#define CH_CFG_MEMCORE_SIZE                 64
 #endif
 
 /**
@@ -480,7 +487,7 @@
  * @note    The default is @p FALSE.
  */
 #if !defined(CH_DBG_STATISTICS)
-#define CH_DBG_STATISTICS                   FALSE
+#define CH_DBG_STATISTICS                   TRUE
 #endif
 
 /**
@@ -491,7 +498,7 @@
  * @note    The default is @p FALSE.
  */
 #if !defined(CH_DBG_SYSTEM_STATE_CHECK)
-#define CH_DBG_SYSTEM_STATE_CHECK           FALSE
+#define CH_DBG_SYSTEM_STATE_CHECK           TRUE //keep this enabled as a low level SPI fails otherwise
 #endif
 
 /**
@@ -502,7 +509,7 @@
  * @note    The default is @p FALSE.
  */
 #if !defined(CH_DBG_ENABLE_CHECKS)
-#define CH_DBG_ENABLE_CHECKS                FALSE
+#define CH_DBG_ENABLE_CHECKS                TRUE 
 #endif
 
 /**
@@ -514,7 +521,7 @@
  * @note    The default is @p FALSE.
  */
 #if !defined(CH_DBG_ENABLE_ASSERTS)
-#define CH_DBG_ENABLE_ASSERTS               FALSE
+#define CH_DBG_ENABLE_ASSERTS               TRUE
 #endif
 
 /**
@@ -523,6 +530,7 @@
  *
  * @note    The default is @p CH_DBG_TRACE_MASK_DISABLED.
  */
+
 #if !defined(CH_DBG_TRACE_MASK)
 #define CH_DBG_TRACE_MASK                   CH_DBG_TRACE_MASK_DISABLED
 #endif
@@ -547,7 +555,7 @@
  *          @p panic_msg variable set to @p NULL.
  */
 #if !defined(CH_DBG_ENABLE_STACK_CHECK)
-#define CH_DBG_ENABLE_STACK_CHECK           FALSE
+#define CH_DBG_ENABLE_STACK_CHECK           TRUE
 #endif
 
 /**
@@ -559,7 +567,7 @@
  * @note    The default is @p FALSE.
  */
 #if !defined(CH_DBG_FILL_THREADS)
-#define CH_DBG_FILL_THREADS                 FALSE
+#define CH_DBG_FILL_THREADS                 TRUE // got it to work
 #endif
 
 /**

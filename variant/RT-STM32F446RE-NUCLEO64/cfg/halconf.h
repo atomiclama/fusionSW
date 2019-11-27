@@ -163,7 +163,7 @@
  * @brief   Enables the SPI subsystem.
  */
 #if !defined(HAL_USE_SPI) || defined(__DOXYGEN__)
-#define HAL_USE_SPI                         FALSE
+#define HAL_USE_SPI                         TRUE
 #endif
 
 /**
@@ -218,7 +218,7 @@
  * @note    Disabling this option saves both code and data space.
  */
 #if !defined(PAL_USE_WAIT) || defined(__DOXYGEN__)
-#define PAL_USE_WAIT                        FALSE
+#define PAL_USE_WAIT                        TRUE
 #endif
 
 /*===========================================================================*/
@@ -471,7 +471,7 @@
  * @note    Disabling this option saves both code and data space.
  */
 #if !defined(SPI_SELECT_MODE) || defined(__DOXYGEN__)
-#define SPI_SELECT_MODE                     SPI_SELECT_MODE_PAD
+#define SPI_SELECT_MODE                     FALSE
 #endif
 
 /*===========================================================================*/

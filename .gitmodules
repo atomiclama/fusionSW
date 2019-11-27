@@ -25,3 +25,6 @@
 [submodule "src/ext/radioLib"]
 	path = src/ext/radioLib
 	url = https://github.com/jgromes/RadioLib.git
+[submodule "src/ext/u360gts"]
+	path = src/ext/u360gts
+	url = https://github.com/raul-ortega/u360gts.git

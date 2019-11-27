@@ -1,140 +1,123 @@
-#pragma once;
+
+
+#pragma once
 
 #include <stdbool.h>
 #include <stdint.h>
 
-/**
- * @brief Enables/disables driver debug features
- */
-#define SX126x_DEBUG                                0
+#include "sx.h"
+#include "radio.h"
 
-/**
- * @brief Provides the frequency of the chip running on the radio and the frequency step
+/*!
+ * \brief Provides the frequency of the chip running on the radio and the frequency step
  *
- * @remark These defines are used for computing the frequency divider to set the RF frequency
+ * \remark These defines are used for computing the frequency divider to set the RF frequency
  */
 #define XTAL_FREQ                                   32000000
 #define FREQ_DIV                                    33554432
 #define FREQ_STEP                                   0.95367431640625 // ( ( double )( XTAL_FREQ / ( double )FREQ_DIV ) )
 #define FREQ_ERR                                    0.47683715820312
 
-/**
- * @brief List of devices supported by this driver
- */
-#define SX1261  0
-#define SX1262  1
-#define SX1268  2
 
-/**
- * @brief List of matching supported by the sx126x
- */
-#define MATCHING_FREQ_915                           0
-#define MATCHING_FREQ_780                           1
-#define MATCHING_FREQ_490                           2
-#define MATCHING_FREQ_434                           3
-#define MATCHING_FREQ_280                           4
-#define MATCHING_FREQ_169                           5
-#define MATCHING_FREQ_868                           6
-
-/**
- * @brief Compensation delay for SetAutoTx/Rx functions in 15.625 microseconds
+/*!
+ * \brief Compensation delay for SetAutoTx/Rx functions in 15.625 microseconds
  */
 #define AUTO_RX_TX_OFFSET                           2
 
-/**
- * @brief LFSR initial value to compute IBM type CRC
+/*!
+ * \brief LFSR initial value to compute IBM type CRC
  */
 #define CRC_IBM_SEED                                0xFFFF
 
-/**
- * @brief LFSR initial value to compute CCIT type CRC
+/*!
+ * \brief LFSR initial value to compute CCIT type CRC
  */
 #define CRC_CCITT_SEED                              0x1D0F
 
-/**
- * @brief Polynomial used to compute IBM CRC
+/*!
+ * \brief Polynomial used to compute IBM CRC
  */
 #define CRC_POLYNOMIAL_IBM                          0x8005
 
-/**
- * @brief Polynomial used to compute CCIT CRC
+/*!
+ * \brief Polynomial used to compute CCIT CRC
  */
 #define CRC_POLYNOMIAL_CCITT                        0x1021
 
-/**
- * @brief The address of the register holding the first byte defining the CRC seed
+/*!
+ * \brief The address of the register holding the first byte defining the CRC seed
  *
  */
 #define REG_LR_CRCSEEDBASEADDR                      0x06BC
 
-/**
- * @brief The address of the register holding the first byte defining the CRC polynomial
+/*!
+ * \brief The address of the register holding the first byte defining the CRC polynomial
  */
 #define REG_LR_CRCPOLYBASEADDR                      0x06BE
 
-/**
- * @brief The address of the register holding the first byte defining the whitening seed
+/*!
+ * \brief The address of the register holding the first byte defining the whitening seed
  */
 #define REG_LR_WHITSEEDBASEADDR_MSB                 0x06B8
 #define REG_LR_WHITSEEDBASEADDR_LSB                 0x06B9
 
-/**
- * @brief The address of the register holding the packet configuration
+/*!
+ * \brief The address of the register holding the packet configuration
  */
 #define REG_LR_PACKETPARAMS                         0x0704
 
-/**
- * @brief The address of the register holding the payload size
+/*!
+ * \brief The address of the register holding the payload size
  */
 #define REG_LR_PAYLOADLENGTH                        0x0702
 
-/**
- * @brief The addresses of the registers holding SyncWords values
+/*!
+ * \brief The addresses of the registers holding SyncWords values
  */
 #define REG_LR_SYNCWORDBASEADDRESS                  0x06C0
 
-/**
- * @brief The addresses of the register holding LoRa Modem SyncWord value
+/*!
+ * \brief The addresses of the register holding LoRa Modem SyncWord value
  */
 #define REG_LR_SYNCWORD                             0x0740
 
-/**
+/*!
  * Syncword for Private LoRa networks
  */
 #define LORA_MAC_PRIVATE_SYNCWORD                   0x1424
 
-/**
+/*!
  * Syncword for Public LoRa networks
  */
 #define LORA_MAC_PUBLIC_SYNCWORD                    0x3444
 
-/**
+/*!
  * The address of the register giving a 4 bytes random number
  */
 #define RANDOM_NUMBER_GENERATORBASEADDR             0x0819
 
-/**
+/*!
  * The address of the register holding RX Gain value (0x94: power saving, 0x96: rx boosted)
  */
 #define REG_RX_GAIN                                 0x08AC
 
-/**
+/*!
  * The address of the register holding frequency error indication
  */
 #define REG_FREQUENCY_ERRORBASEADDR                 0x076B
 
-/**
+/*!
  * Change the value on the device internal trimming capacitor
  */
 #define REG_XTA_TRIM                                0x0911
 
-/**
+/*!
  * Set the current max value in the over current protection
  */
 #define REG_OCP                                     0x08E7
 
-/**
- * @brief Represents the states of the radio
+/*!
+ * \brief Represents the states of the radio
  */
 typedef enum
 {
@@ -144,8 +127,8 @@ typedef enum
     RF_CAD,                                                 //!< The radio is doing channel activity detection
 }RadioStates_t;
 
-/**
- * @brief Represents the operating mode the radio is actually running
+/*!
+ * \brief Represents the operating mode the radio is actually running
  */
 typedef enum
 {
@@ -159,8 +142,8 @@ typedef enum
     MODE_CAD                                                //! The radio is in channel activity detection mode
 }RadioOperatingModes_t;
 
-/**
- * @brief Declares the oscillator in use while in standby mode
+/*!
+ * \brief Declares the oscillator in use while in standby mode
  *
  * Using the STDBY_RC standby mode allow to reduce the energy consumption
  * STDBY_XOSC should be used for time critical applications
@@ -171,8 +154,8 @@ typedef enum
     STDBY_XOSC                              = 0x01,
 }RadioStandbyModes_t;
 
-/**
- * @brief Declares the power regulation used to power the device
+/*!
+ * \brief Declares the power regulation used to power the device
  *
  * This command allows the user to specify if DC-DC or LDO is used for power regulation.
  * Using only LDO implies that the Rx or Tx current is doubled
@@ -183,8 +166,8 @@ typedef enum
     USE_DCDC                                = 0x01,
 }RadioRegulatorMode_t;
 
-/**
- * @brief Represents the possible packet type (i.e. modem) used
+/*!
+ * \brief Represents the possible packet type (i.e. modem) used
  */
 typedef enum
 {
@@ -193,8 +176,8 @@ typedef enum
     PACKET_TYPE_NONE                        = 0x0F,
 }RadioPacketTypes_t;
 
-/**
- * @brief Represents the ramping time for power amplifier
+/*!
+ * \brief Represents the ramping time for power amplifier
  */
 typedef enum
 {
@@ -208,8 +191,8 @@ typedef enum
     RADIO_RAMP_3400_US                      = 0x07,
 }RadioRampTimes_t;
 
-/**
- * @brief Represents the number of symbols to be used for channel activity detection operation
+/*!
+ * \brief Represents the number of symbols to be used for channel activity detection operation
  */
 typedef enum
 {
@@ -220,8 +203,8 @@ typedef enum
     LORA_CAD_16_SYMBOL                      = 0x04,
 }RadioLoRaCadSymbols_t;
 
-/**
- * @brief Represents the Channel Activity Detection actions after the CAD operation is finished
+/*!
+ * \brief Represents the Channel Activity Detection actions after the CAD operation is finished
  */
 typedef enum
 {
@@ -230,8 +213,8 @@ typedef enum
     LORA_CAD_LBT                            = 0x10,
 }RadioCadExitModes_t;
 
-/**
- * @brief Represents the modulation shaping parameter
+/*!
+ * \brief Represents the modulation shaping parameter
  */
 typedef enum
 {
@@ -242,8 +225,8 @@ typedef enum
     MOD_SHAPING_G_BT_1                      = 0x0B,
 }RadioModShapings_t;
 
-/**
- * @brief Represents the modulation shaping parameter
+/*!
+ * \brief Represents the modulation shaping parameter
  */
 typedef enum
 {
@@ -270,8 +253,8 @@ typedef enum
     RX_BW_467000                            = 0x09,
 }RadioRxBandwidth_t;
 
-/**
- * @brief Represents the possible spreading factor values in LoRa packet types
+/*!
+ * \brief Represents the possible spreading factor values in LoRa packet types
  */
 typedef enum
 {
@@ -285,8 +268,8 @@ typedef enum
     LORA_SF12                               = 0x0C,
 }RadioLoRaSpreadingFactors_t;
 
-/**
- * @brief Represents the bandwidth values for LoRa packet type
+/*!
+ * \brief Represents the bandwidth values for LoRa packet type
  */
 typedef enum
 {
@@ -302,8 +285,8 @@ typedef enum
     LORA_BW_007                             = 0,
 }RadioLoRaBandwidths_t;
 
-/**
- * @brief Represents the coding rate values for LoRa packet type
+/*!
+ * \brief Represents the coding rate values for LoRa packet type
  */
 typedef enum
 {
@@ -313,8 +296,8 @@ typedef enum
     LORA_CR_4_8                             = 0x04,
 }RadioLoRaCodingRates_t;
 
-/**
- * @brief Represents the preamble length used to detect the packet on Rx side
+/*!
+ * \brief Represents the preamble length used to detect the packet on Rx side
  */
 typedef enum
 {
@@ -325,8 +308,8 @@ typedef enum
     RADIO_PREAMBLE_DETECTOR_32_BITS         = 0x07,         //!< Preamble detection length 32 bit
 }RadioPreambleDetection_t;
 
-/**
- * @brief Represents the possible combinations of SyncWord correlators activated
+/*!
+ * \brief Represents the possible combinations of SyncWord correlators activated
  */
 typedef enum
 {
@@ -335,8 +318,8 @@ typedef enum
     RADIO_ADDRESSCOMP_FILT_NODE_BROAD       = 0x02,
 }RadioAddressComp_t;
 
-/**
- *  @brief Radio packet length mode
+/*!
+ *  \brief Radio packet length mode
  */
 typedef enum
 {
@@ -344,8 +327,8 @@ typedef enum
     RADIO_PACKET_VARIABLE_LENGTH            = 0x01,         //!< The packet is on variable size, header included
 }RadioPacketLengthModes_t;
 
-/**
- * @brief Represents the CRC length
+/*!
+ * \brief Represents the CRC length
  */
 typedef enum
 {
@@ -358,8 +341,8 @@ typedef enum
     RADIO_CRC_2_BYTES_CCIT                  = 0xF2,
 }RadioCrcTypes_t;
 
-/**
- * @brief Radio whitening mode activated or deactivated
+/*!
+ * \brief Radio whitening mode activated or deactivated
  */
 typedef enum
 {
@@ -367,8 +350,8 @@ typedef enum
     RADIO_DC_FREEWHITENING                  = 0x01,
 }RadioDcFree_t;
 
-/**
- * @brief Holds the lengths mode of a LoRa packet type
+/*!
+ * \brief Holds the lengths mode of a LoRa packet type
  */
 typedef enum
 {
@@ -378,8 +361,8 @@ typedef enum
     LORA_PACKET_IMPLICIT                    = LORA_PACKET_FIXED_LENGTH,
 }RadioLoRaPacketLengthsMode_t;
 
-/**
- * @brief Represents the CRC mode for LoRa packet type
+/*!
+ * \brief Represents the CRC mode for LoRa packet type
  */
 typedef enum
 {
@@ -387,8 +370,8 @@ typedef enum
     LORA_CRC_OFF                            = 0x00,         //!< CRC not used
 }RadioLoRaCrcModes_t;
 
-/**
- * @brief Represents the IQ mode for LoRa packet type
+/*!
+ * \brief Represents the IQ mode for LoRa packet type
  */
 typedef enum
 {
@@ -396,8 +379,8 @@ typedef enum
     LORA_IQ_INVERTED                        = 0x01,
 }RadioLoRaIQModes_t;
 
-/**
- * @brief Represents the volatge used to control the TCXO on/off from DIO3
+/*!
+ * \brief Represents the volatge used to control the TCXO on/off from DIO3
  */
 typedef enum
 {
@@ -411,10 +394,10 @@ typedef enum
     TCXO_CTRL_3_3V                          = 0x07,
 }RadioTcxoCtrlVoltage_t;
 
-/**
- * @brief Represents the interruption masks available for the radio
+/*!
+ * \brief Represents the interruption masks available for the radio
  *
- * @remark Note that not all these interruptions are available for all packet types
+ * \remark Note that not all these interruptions are available for all packet types
  */
 typedef enum
 {
@@ -432,55 +415,24 @@ typedef enum
     IRQ_RADIO_ALL                           = 0xFFFF,
 }RadioIrqMasks_t;
 
-/**
- * @brief Represents all possible opcode understood by the radio
- */
-typedef enum RadioCommands_e
-{
-    RADIO_GET_STATUS                        = 0xC0,
-    RADIO_WRITE_REGISTER                    = 0x0D,
-    RADIO_READ_REGISTER                     = 0x1D,
-    RADIO_WRITE_BUFFER                      = 0x0E,
-    RADIO_READ_BUFFER                       = 0x1E,
-    RADIO_SET_SLEEP                         = 0x84,
-    RADIO_SET_STANDBY                       = 0x80,
-    RADIO_SET_FS                            = 0xC1,
-    RADIO_SET_TX                            = 0x83,
-    RADIO_SET_RX                            = 0x82,
-    RADIO_SET_RXDUTYCYCLE                   = 0x94,
-    RADIO_SET_CAD                           = 0xC5,
-    RADIO_SET_TXCONTINUOUSWAVE              = 0xD1,
-    RADIO_SET_TXCONTINUOUSPREAMBLE          = 0xD2,
-    RADIO_SET_PACKETTYPE                    = 0x8A,
-    RADIO_GET_PACKETTYPE                    = 0x11,
-    RADIO_SET_RFFREQUENCY                   = 0x86,
-    RADIO_SET_TXPARAMS                      = 0x8E,
-    RADIO_SET_PACONFIG                      = 0x95,
-    RADIO_SET_CADPARAMS                     = 0x88,
-    RADIO_SET_BUFFERBASEADDRESS             = 0x8F,
-    RADIO_SET_MODULATIONPARAMS              = 0x8B,
-    RADIO_SET_PACKETPARAMS                  = 0x8C,
-    RADIO_GET_RXBUFFERSTATUS                = 0x13,
-    RADIO_GET_PACKETSTATUS                  = 0x14,
-    RADIO_GET_RSSIINST                      = 0x15,
-    RADIO_GET_STATS                         = 0x10,
-    RADIO_RESET_STATS                       = 0x00,
-    RADIO_CFG_DIOIRQ                        = 0x08,
-    RADIO_GET_IRQSTATUS                     = 0x12,
-    RADIO_CLR_IRQSTATUS                     = 0x02,
-    RADIO_CALIBRATE                         = 0x89,
-    RADIO_CALIBRATEIMAGE                    = 0x98,
-    RADIO_SET_REGULATORMODE                 = 0x96,
-    RADIO_GET_ERROR                         = 0x17,
-    RADIO_SET_TCXOMODE                      = 0x97,
-    RADIO_SET_TXFALLBACKMODE                = 0x93,
-    RADIO_SET_RFSWITCHMODE                  = 0x9D,
-    RADIO_SET_STOPRXTIMERONPREAMBLE         = 0x9F,
-    RADIO_SET_LORASYMBTIMEOUT               = 0xA0,
-}RadioCommands_t;
 
-/**
- * @brief The type describing the modulation parameters for every packet types
+/*!
+ * \brief Structure describing the radio status
+ */
+typedef union RadioStatus_u
+{
+    uint8_t Value;
+    struct
+    {   //bit order is lsb -> msb
+        uint8_t Reserved  : 1;  //!< Reserved
+        uint8_t CmdStatus : 3;  //!< Command status
+        uint8_t ChipMode  : 3;  //!< Chip mode
+        uint8_t CpuBusy   : 1;  //!< Flag for CPU radio busy 
+    }Fields;
+}RadioStatus_t;
+
+/*!
+ * \brief The type describing the modulation parameters for every packet types
  */
 typedef struct
 {
@@ -504,16 +456,16 @@ typedef struct
     }Params;                                                //!< Holds the modulation parameters structure
 }ModulationParams_t;
 
-/**
- * @brief The type describing the packet parameters for every packet types
+/*!
+ * \brief The type describing the packet parameters for every packet types
  */
 typedef struct
 {
     RadioPacketTypes_t                    PacketType;        //!< Packet to which the packet parameters are referring to.
     struct
     {
-        /**
-         * @brief Holds the GFSK packet parameters
+        /*!
+         * \brief Holds the GFSK packet parameters
          */
         struct
         {
@@ -526,8 +478,8 @@ typedef struct
             RadioCrcTypes_t              CrcLength;         //!< Size of the CRC block in the GFSK packet
             RadioDcFree_t                DcFree;
         }Gfsk;
-        /**
-         * @brief Holds the LoRa packet parameters
+        /*!
+         * \brief Holds the LoRa packet parameters
          */
         struct
         {
@@ -540,8 +492,8 @@ typedef struct
     }Params;                                                //!< Holds the packet parameters structure
 }PacketParams_t;
 
-/**
- * @brief Represents the packet status for every packet type
+/*!
+ * \brief Represents the packet status for every packet type
  */
 typedef struct
 {
@@ -565,8 +517,8 @@ typedef struct
     }Params;
 }PacketStatus_t;
 
-/**
- * @brief Represents the Rx internal counters values when GFSK or LoRa packet type is used
+/*!
+ * \brief Represents the Rx internal counters values when GFSK or LoRa packet type is used
  */
 typedef struct
 {
@@ -576,8 +528,8 @@ typedef struct
     uint16_t LengthError;
 }RxCounter_t;
 
-/**
- * @brief Represents a calibration configuration
+/*!
+ * \brief Represents a calibration configuration
  */
 typedef union
 {
@@ -595,8 +547,8 @@ typedef union
     uint8_t Value;
 }CalibrationParams_t;
 
-/**
- * @brief Represents a sleep mode configuration
+/*!
+ * \brief Represents a sleep mode configuration
  */
 typedef union
 {
@@ -610,8 +562,8 @@ typedef union
     uint8_t Value;
 }SleepParams_t;
 
-/**
- * @brief Represents the possible radio system error states
+/*!
+ * \brief Represents the possible radio system error states
  */
 typedef union
 {
@@ -631,559 +583,480 @@ typedef union
     uint16_t Value;
 }RadioError_t;
 
-
-/**
- * @brief Holds the internal operating mode of the radio
- */
-RadioOperatingModes_t OperatingMode;
-
-/**
- * @brief Stores the current packet type set in the radio
- */
-RadioPacketTypes_t PacketType;
-
-/**
- * @brief Holds a flag raised on radio interrupt
- */
-bool IrqState;
-
-/**
- * @brief Hardware DIO IRQ functions
- */
-DioIrqHandler dioIrq;
-
-/**
- * @brief Holds the polling state of the driver
- */
-bool PollingMode;
-
-
-
-/**
- * @brief Sets a function to be triggered on radio interrupt
+/*!
+ * \brief Represents the SX126x and its features
  *
- * @param [in]  irqHandler    A pointer to a function to be run on interrupt
- *                            from the radio
+ * It implements the commands the SX126x can understands
  */
-void IoIrqInit( DioIrqHandler irqHandler );
+class SX126x : public SX12
+{
+public:
+    SX126x(SPIDriver *spiDevice) : SX12 (spiDevice) {
+    }
+private:
+    /*!
+     * \brief Holds the internal operating mode of the radio
+     */
+    RadioOperatingModes_t OperatingMode;
 
-/**
- * @brief DIOs interrupt callback
- *
- * @remark Called to handle all 3 DIOs pins
- */
-void OnDioIrq( void );
+    /*!
+     * \brief Stores the current packet type set in the radio
+     */
+    RadioPacketTypes_t PacketType;
 
-/**
- * @brief Initializes the radio driver
- */
-void Init( void );
+    /*!
+     * \brief Holds a flag raised on radio interrupt
+     */
+    bool IrqState;
 
-/**
- * @brief Gets the current Operation Mode of the Radip
- *
- * \retval      RadioOperatingModes_t last operating mode
- */
-RadioOperatingModes_t GetOperatingMode( void );
+    /*!
+     * \brief Hardware DIO IRQ functions
+     */
+    // DioIrqHandler dioIrq;
 
-/**
- * @brief Wakeup the radio if it is in Sleep mode and check that Busy is low
- */
-void CheckDeviceReady( void );
+    /*!
+     * \brief Holds the polling state of the driver
+     */
+    bool PollingMode;
 
-/**
- * @brief Saves the payload to be send in the radio buffer
- *
- * @param [in]  payload       A pointer to the payload
- * @param [in]  size          The size of the payload
- */
-void SetPayload( uint8_t *payload, uint8_t size );
-
-/**
- * @brief Reads the payload received. If the received payload is longer
- * than maxSize, then the method returns 1 and do not set size and payload.
- *
- * @param [out] payload       A pointer to a buffer into which the payload will be copied
- * @param [out] size          A pointer to the size of the payload received
- * @param [in]  maxSize       The maximal size allowed to copy into the buffer
- */
-uint8_t GetPayload( uint8_t *payload, uint8_t *size, uint8_t maxSize );
-
-/**
- * @brief Sends a payload
- *
- * @param [in]  payload       A pointer to the payload to send
- * @param [in]  size          The size of the payload to send
- * @param [in]  timeout       The timeout for Tx operation
- */
-void SendPayload( uint8_t *payload, uint8_t size, uint32_t timeout );
-
-/**
- * @brief Sets the Sync Word given by index used in GFSK
- *
- * @param [in]  syncWord      SyncWord bytes ( 8 bytes )
- *
- * \retval      status        [0: OK, 1: NOK]
- */
-uint8_t SetSyncWord( uint8_t *syncWord );
-
-/**
- * @brief Sets the Initial value for the LFSR used for the CRC calculation
- *
- * @param [in]  seed          Initial LFSR value ( 2 bytes )
- *
- */
-void SetCrcSeed( uint16_t seed );
-
-/**
- * @brief Sets the seed used for the CRC calculation
- *
- * @param [in]  seed          The seed value
- *
- */
-void SetCrcPolynomial( uint16_t seed );
-
-/**
- * @brief Sets the Initial value of the LFSR used for the whitening in GFSK protocols
- *
- * @param [in]  seed          Initial LFSR value
- */
-void SetWhiteningSeed( uint16_t seed );
-
-/**
- * @brief Gets a 32 bits random value generated by the radio
- *
- * @remark The radio must be in reception mode before executing this function
- *
- * \retval randomValue    32 bits random value
- */
-uint32_t GetRandom( void );
-
-/**
- * @brief Sets the radio in sleep mode
- *
- * @param [in]  sleepConfig   The sleep configuration describing data
- *                            retention and RTC wake-up
- */
-void SetSleep( SleepParams_t sleepConfig );
-
-/**
- * @brief Sets the radio in configuration mode
- *
- * @param [in]  mode          The standby mode to put the radio into
- */
-void SetStandby( RadioStandbyModes_t mode );
-
-/**
- * @brief Sets the radio in FS mode
- */
-void SetFs( void );
-
-/**
- * @brief Sets the radio in transmission mode
- *
- * @param [in]  timeout       Structure describing the transmission timeout value
- */
-void SetTx( uint32_t timeout );
-
-/**
- * @brief Sets the radio in reception Boosted mode
- *
- * @param [in]  timeout       Structure describing the transmission timeout value
- */
-void SetRxBoosted( uint32_t timeout );
-
-/**
- * @brief Sets the radio in reception mode
- *
- * @param [in]  timeout       Structure describing the reception timeout value
- */
-void SetRx( uint32_t timeout );
-
-/**
- * @brief Sets the Rx duty cycle management parameters
- *
- * @param [in]  rxTime        Structure describing reception timeout value
- * @param [in]  sleepTime     Structure describing sleep timeout value
- */
-void SetRxDutyCycle( uint32_t rxTime, uint32_t sleepTime );
-
-/**
- * @brief Sets the radio in CAD mode
- */
-void SetCad( void );
-
-/**
- * @brief Sets the radio in continuous wave transmission mode
- */
-void SetTxContinuousWave( void );
-
-/**
- * @brief Sets the radio in continuous preamble transmission mode
- */
-void SetTxInfinitePreamble( void );
-
-/**
- * @brief Decide which interrupt will stop the internal radio rx timer.
- *
- * @param [in]  enable          [0: Timer stop after header/syncword detection
- *                               1: Timer stop after preamble detection]
- */
-void SetStopRxTimerOnPreambleDetect( bool enable );
-
-/**
- * @brief Set the number of symbol the radio will wait to validate a reception
- *
- * @param [in]  SymbNum          number of LoRa symbols
- */
-void SetLoRaSymbNumTimeout( uint8_t SymbNum );
-
-/**
- * @brief Sets the power regulators operating mode
- *
- * @param [in]  mode          [0: LDO, 1:DC_DC]
- */
-void SetRegulatorMode( RadioRegulatorMode_t mode );
-
-/**
- * @brief Calibrates the given radio block
- *
- * @param [in]  calibParam    The description of blocks to be calibrated
- */
-void Calibrate( CalibrationParams_t calibParam );
-
-/**
- * @brief Calibrates the Image rejection depending of the frequency
- *
- * @param [in]  freq    The operating frequency
- */
-void CalibrateImage( uint32_t freq );
-
-/**
- * @brief Sets the transmission parameters
- *
- * @param [in]  paDutyCycle     Duty Cycle for the PA
- * @param [in]  HpMax           0 for sx1261, 7 for sx1262
- * @param [in]  deviceSel       1 for sx1261, 0 for sx1262
- * @param [in]  paLUT           0 for 14dBm LUT, 1 for 22dBm LUT
- */
-void SetPaConfig( uint8_t paDutyCycle, uint8_t HpMax, uint8_t deviceSel, uint8_t paLUT );
-
-/**
- * @brief Defines into which mode the chip goes after a TX / RX done
- *
- * @param [in]  fallbackMode    The mode in which the radio goes
- */
-void SetRxTxFallbackMode( uint8_t fallbackMode );
-
-/**
- * @brief   Sets the IRQ mask and DIO masks
- *
- * @param [in]  irqMask       General IRQ mask
- * @param [in]  dio1Mask      DIO1 mask
- * @param [in]  dio2Mask      DIO2 mask
- * @param [in]  dio3Mask      DIO3 mask
- */
-void SetDioIrqParams( uint16_t irqMask, uint16_t dio1Mask, uint16_t dio2Mask, uint16_t dio3Mask );
-
-/**
- * @brief Returns the current IRQ status
- *
- * \retval      irqStatus     IRQ status
- */
-uint16_t GetIrqStatus( void );
-
-/*
-    * @brief Indicates if DIO2 is used to control an RF Switch
-    *
-    * @param [in] enable     true of false
+    /*!
+    * \brief Stores the last frequency error measured on LoRa received packet
     */
-void SetDio2AsRfSwitchCtrl( uint8_t enable );
+    volatile uint32_t FrequencyError = 0;
 
-/*
-    * @brief Indicates if the Radio main clock is supplied from a tcxo
-    *
-    * @param [in] tcxoVoltage     voltage used to control the TCXO
-    * @param [in] timeout         time given to the TCXO to go to 32MHz
+    /*!
+    * \brief Hold the status of the Image calibration
     */
-void SetDio3AsTcxoCtrl( RadioTcxoCtrlVoltage_t tcxoVoltage, uint32_t timeout );
+    bool ImageCalibrated = false;
 
-/**
- * @brief Sets the RF frequency
- *
- * @param [in]  frequency     RF frequency [Hz]
- */
-void SetRfFrequency( uint32_t frequency );
+protected:
 
-/**
- * @brief Sets the radio for the given protocol
- *
- * @param [in]  packetType    [PACKET_TYPE_GFSK, PACKET_TYPE_LORA]
- *
- * @remark This method has to be called before SetRfFrequency,
- *         SetModulationParams and SetPacketParams
- */
-void SetPacketType( RadioPacketTypes_t packetType );
+    /*!
+     * \brief Sets a function to be triggered on radio interrupt
+     *
+     * \param [in]  irqHandler    A pointer to a function to be run on interrupt
+     *                            from the radio
+     */
+    // void IoIrqInit( DioIrqHandler irqHandler );
 
-/**
- * @brief Gets the current radio protocol
- *
- * \retval      packetType    [PACKET_TYPE_GFSK, PACKET_TYPE_LORA]
- */
-RadioPacketTypes_t GetPacketType( void );
+    /*!
+     * \brief DIOs interrupt callback
+     *
+     * \remark Called to handle all 3 DIOs pins
+     */
+    void OnDioIrq( void );
+public:
+    void init(void);
+    /*!
+     * \brief Initializes the radio driver
+     */
+    void Init( void );
 
-/**
- * @brief Sets the transmission parameters
- *
- * @param [in]  power         RF output power [-18..13] dBm
- * @param [in]  rampTime      Transmission ramp up time
- */
-void SetTxParams( int8_t power, RadioRampTimes_t rampTime );
+    /*!
+     * \brief Gets the current Operation Mode of the Radip
+     *
+     * \retval      RadioOperatingModes_t last operating mode
+     */
+    RadioOperatingModes_t GetOperatingMode( void );
 
-/**
- * @brief Set the modulation parameters
- *
- * @param [in]  modParams     A structure describing the modulation parameters
- */
-void SetModulationParams( ModulationParams_t *modParams );
+    /*!
+     * \brief Wakeup the radio if it is in Sleep mode and check that Busy is low
+     */
+    void CheckDeviceReady( void );
 
-/**
- * @brief Sets the packet parameters
- *
- * @param [in]  packetParams  A structure describing the packet parameters
- */
-void SetPacketParams( PacketParams_t *packetParams );
+    /*!
+     * \brief Saves the payload to be send in the radio buffer
+     *
+     * \param [in]  payload       A pointer to the payload
+     * \param [in]  size          The size of the payload
+     */
+    void SetPayload( uint8_t *payload, uint8_t size );
 
-/**
- * @brief Sets the Channel Activity Detection (CAD) parameters
- *
- * @param [in]  cadSymbolNum   The number of symbol to use for CAD operations
- *                             [LORA_CAD_01_SYMBOL, LORA_CAD_02_SYMBOL,
- *                              LORA_CAD_04_SYMBOL, LORA_CAD_08_SYMBOL,
- *                              LORA_CAD_16_SYMBOL]
- * @param [in]  cadDetPeak     Limite for detection of SNR peak used in the CAD
- * @param [in]  cadDetMin      Set the minimum symbol recognition for CAD
- * @param [in]  cadExitMode    Operation to be done at the end of CAD action
- *                             [LORA_CAD_ONLY, LORA_CAD_RX, LORA_CAD_LBT]
- * @param [in]  cadTimeout     Defines the timeout value to abort the CAD activity
- */
-void SetCadParams( RadioLoRaCadSymbols_t cadSymbolNum, uint8_t cadDetPeak, uint8_t cadDetMin, RadioCadExitModes_t cadExitMode, uint32_t cadTimeout );
+    /*!
+     * \brief Reads the payload received. If the received payload is longer
+     * than maxSize, then the method returns 1 and do not set size and payload.
+     *
+     * \param [out] payload       A pointer to a buffer into which the payload will be copied
+     * \param [out] size          A pointer to the size of the payload received
+     * \param [in]  maxSize       The maximal size allowed to copy into the buffer
+     */
+    uint8_t GetPayload( uint8_t *payload, uint8_t *size, uint8_t maxSize );
 
-/**
- * @brief Sets the data buffer base address for transmission and reception
- *
- * @param [in]  txBaseAddress Transmission base address
- * @param [in]  rxBaseAddress Reception base address
- */
-void SetBufferBaseAddresses( uint8_t txBaseAddress, uint8_t rxBaseAddress );
+    /*!
+     * \brief Sends a payload
+     *
+     * \param [in]  payload       A pointer to the payload to send
+     * \param [in]  size          The size of the payload to send
+     * \param [in]  timeout       The timeout for Tx operation
+     */
+    void SendPayload( uint8_t *payload, uint8_t size, uint32_t timeout );
 
-/**
- * @brief Gets the current radio status
- *
- * \retval      status        Radio status
- */
-RadioStatus_t GetStatus( void );
+    /*!
+     * \brief Sets the Sync Word given by index used in GFSK
+     *
+     * \param [in]  syncWord      SyncWord bytes ( 8 bytes )
+     *
+     * \retval      status        [0: OK, 1: NOK]
+     */
+    uint8_t SetSyncWord( uint8_t *syncWord );
 
-/**
- * @brief Returns the instantaneous RSSI value for the last packet received
- *
- * \retval      rssiInst      Instantaneous RSSI
- */
-int8_t GetRssiInst( void );
+    /*!
+     * \brief Sets the Initial value for the LFSR used for the CRC calculation
+     *
+     * \param [in]  seed          Initial LFSR value ( 2 bytes )
+     *
+     */
+    void SetCrcSeed( uint16_t seed );
 
-/**
- * @brief Gets the last received packet buffer status
- *
- * @param [out] payloadLength Last received packet payload length
- * @param [out] rxStartBuffer Last received packet buffer address pointer
- */
-void GetRxBufferStatus( uint8_t *payloadLength, uint8_t *rxStartBuffer );
+    /*!
+     * \brief Sets the seed used for the CRC calculation
+     *
+     * \param [in]  seed          The seed value
+     *
+     */
+    void SetCrcPolynomial( uint16_t seed );
 
-/**
- * @brief Gets the last received packet payload length
- *
- * @param [out] pktStatus     A structure of packet status
- */
-void GetPacketStatus( PacketStatus_t *pktStatus );
+    /*!
+     * \brief Sets the Initial value of the LFSR used for the whitening in GFSK protocols
+     *
+     * \param [in]  seed          Initial LFSR value
+     */
+    void SetWhiteningSeed( uint16_t seed );
+    
+    /*!
+     * \brief Gets a 32 bits random value generated by the radio
+     *
+     * \remark The radio must be in reception mode before executing this function
+     *
+     * \retval randomValue    32 bits random value
+     */
+    uint32_t GetRandom( void );
 
-/**
- * @brief Returns the possible system erros
- *
- * \retval sysErrors Value representing the possible sys failures
- */
-RadioError_t GetDeviceErrors( void );
+    /*!
+     * \brief Sets the radio in sleep mode
+     *
+     * \param [in]  sleepConfig   The sleep configuration describing data
+     *                            retention and RTC wake-up
+     */
+    void SetSleep( SleepParams_t sleepConfig );
 
-/**
- * @brief Clears the IRQs
- *
- * @param [in]  irq           IRQ(s) to be cleared
- */
-void ClearIrqStatus( uint16_t irq );
+    /*!
+     * \brief Sets the radio in configuration mode
+     *
+     * \param [in]  mode          The standby mode to put the radio into
+     */
+    void SetStandby( RadioStandbyModes_t mode );
 
-/**
- * @brief Set the driver in polling mode.
- *
- * In polling mode the application is responsible to call ProcessIrqs( ) to
- * execute callbacks functions.
- * The default mode is Interrupt Mode.
- * @code
- * // Initializations and callbacks declaration/definition
- * radio = SX126x( mosi, miso, sclk, nss, busy, int1, int2, int3, rst, &callbacks );
- * radio.Init( );
- * radio.SetPollingMode( );
- *
- * while( true )
- * {
- *                            //     IRQ processing is automatically done
- *     radio.ProcessIrqs( );  // <-- here, as well as callback functions
- *                            //     calls
- *     // Do some applicative work
- * }
- * @endcode
- *
- * \see SX126x::SetInterruptMode
- */
-void SetPollingMode( void );
+    /*!
+     * \brief Sets the radio in FS mode
+     */
+    void SetFs( void );
 
-/**
- * @brief Set the driver in interrupt mode.
- *
- * In interrupt mode, the driver communicate with the radio during the
- * interruption by direct calls to ProcessIrqs( ). The main advantage is
- * the possibility to have low power application architecture.
- * This is the default mode.
- * @code
- * // Initializations and callbacks declaration/definition
- * radio = SX126x( mosi, miso, sclk, nss, busy, int1, int2, int3, rst, &callbacks );
- * radio.Init( );
- * radio.SetInterruptMode( );   // Optionnal. Driver default behavior
- *
- * while( true )
- * {
- *     // Do some applicative work
- * }
- * @endcode
- *
- * \see SX126x::SetPollingMode
- */
-void SetInterruptMode( void );
+    /*!
+     * \brief Sets the radio in transmission mode
+     *
+     * \param [in]  timeout       Structure describing the transmission timeout value
+     */
+    void SetTx( uint32_t timeout );
 
-/**
- * @brief Resets the radio
- */
-void Reset( void );
+    /*!
+     * \brief Sets the radio in reception Boosted mode
+     *
+     * \param [in]  timeout       Structure describing the transmission timeout value
+     */
+    void SetRxBoosted( uint32_t timeout );
 
-/**
- * @brief Wake-ups the radio from Sleep mode
- */
-void Wakeup( void );
+    /*!
+     * \brief Sets the radio in reception mode
+     *
+     * \param [in]  timeout       Structure describing the reception timeout value
+     */
+    void SetRx( uint32_t timeout );
 
-/**
- * @brief Writes the given command to the radio
- *
- * @param [in]  opcode        Command opcode
- * @param [in]  buffer        Command parameters byte array
- * @param [in]  size          Command parameters byte array size
- */
-void WriteCommand( RadioCommands_t opcode, uint8_t *buffer, uint16_t size );
+    /*!
+     * \brief Sets the Rx duty cycle management parameters
+     *
+     * \param [in]  rxTime        Structure describing reception timeout value
+     * \param [in]  sleepTime     Structure describing sleep timeout value
+     */
+    void SetRxDutyCycle( uint32_t rxTime, uint32_t sleepTime );
 
-/**
- * @brief Reads the given command from the radio
- *
- * @param [in]  opcode        Command opcode
- * @param [in]  buffer        Command parameters byte array
- * @param [in]  size          Command parameters byte array size
- */
-void ReadCommand( RadioCommands_t opcode, uint8_t *buffer, uint16_t size );
+    /*!
+     * \brief Sets the radio in CAD mode
+     */
+    void SetCad( void );
 
-/**
- * @brief Writes multiple radio registers starting at address
- *
- * @param [in]  address       First Radio register address
- * @param [in]  buffer        Buffer containing the new register's values
- * @param [in]  size          Number of registers to be written
- */
-void WriteRegister( uint16_t address, uint8_t *buffer, uint16_t size );
+    /*!
+     * \brief Sets the radio in continuous wave transmission mode
+     */
+    void SetTxContinuousWave( void );
 
-/**
- * @brief Writes the radio register at the specified address
- *
- * @param [in]  address       Register address
- * @param [in]  value         New register value
- */
-void WriteReg( uint16_t address, uint8_t value );
+    /*!
+     * \brief Sets the radio in continuous preamble transmission mode
+     */
+    void SetTxInfinitePreamble( void );
 
-/**
- * @brief Reads multiple radio registers starting at address
- *
- * @param [in]  address       First Radio register address
- * @param [out] buffer        Buffer where to copy the registers data
- * @param [in]  size          Number of registers to be read
- */
-void ReadRegister( uint16_t address, uint8_t *buffer, uint16_t size );
+    /*!
+     * \brief Decide which interrupt will stop the internal radio rx timer.
+     *
+     * \param [in]  enable          [0: Timer stop after header/syncword detection
+     *                               1: Timer stop after preamble detection]
+     */
+    void SetStopRxTimerOnPreambleDetect( bool enable );
 
-/**
- * @brief Reads the radio register at the specified address
- *
- * @param [in]  address       Register address
- *
- * \retval      data          Register value
- */
-uint8_t ReadReg( uint16_t address ) ;
+    /*!
+     * \brief Set the number of symbol the radio will wait to validate a reception
+     *
+     * \param [in]  SymbNum          number of LoRa symbols
+     */
+    void SetLoRaSymbNumTimeout( uint8_t SymbNum );
+    
+    /*!
+     * \brief Sets the power regulators operating mode
+     *
+     * \param [in]  mode          [0: LDO, 1:DC_DC]
+     */
+    void SetRegulatorMode( RadioRegulatorMode_t mode );
+    
+    /*!
+     * \brief Calibrates the given radio block
+     *
+     * \param [in]  calibParam    The description of blocks to be calibrated
+     */
+    void Calibrate( CalibrationParams_t calibParam );
 
-/**
- * @brief Writes Radio Data Buffer with buffer of size starting at offset.
- *
- * @param [in]  offset        Offset where to start writing
- * @param [in]  buffer        Buffer pointer
- * @param [in]  size          Buffer size
- */
-void WriteBuffer( uint8_t offset, uint8_t *buffer, uint8_t size ) ;
+    /*!
+     * \brief Calibrates the Image rejection depending of the frequency
+     *
+     * \param [in]  freq    The operating frequency
+     */
+    void CalibrateImage( uint32_t freq );
 
-/**
- * @brief Reads Radio Data Buffer at offset to buffer of size
- *
- * @param [in]  offset        Offset where to start reading
- * @param [out] buffer        Buffer pointer
- * @param [in]  size          Buffer size
- */
-void ReadBuffer( uint8_t offset, uint8_t *buffer, uint8_t size ) ;
+    /*!
+     * \brief Sets the transmission parameters
+     *
+     * \param [in]  paDutyCycle     Duty Cycle for the PA
+     * \param [in]  HpMax           0 for sx1261, 7 for sx1262
+     * \param [in]  deviceSel       1 for sx1261, 0 for sx1262
+     * \param [in]  paLUT           0 for 14dBm LUT, 1 for 22dBm LUT
+     */
+    void SetPaConfig( uint8_t paDutyCycle, uint8_t HpMax, uint8_t deviceSel, uint8_t paLUT );
 
-/**
- * @brief Gets the current status of the radio DIOs
- *
- * \retval      status        [Bit #3: DIO3, Bit #2: DIO2,
- *                             Bit #1: DIO1, Bit #0: BUSY]
- */
-uint8_t GetDioStatus( void ) ;
+    /*!
+     * \brief Defines into which mode the chip goes after a TX / RX done
+     *
+     * \param [in]  fallbackMode    The mode in which the radio goes
+     */
+    void SetRxTxFallbackMode( uint8_t fallbackMode );
 
-/**
- * @brief Returns the device type
- *
- * \retval      0: SX1261, 1: SX1262, 2: SX1268
- */
-uint8_t GetDeviceType( void ) ;
+    /*!
+     * \brief   Sets the IRQ mask and DIO masks
+     *
+     * \param [in]  irqMask       General IRQ mask
+     * \param [in]  dio1Mask      DIO1 mask
+     * \param [in]  dio2Mask      DIO2 mask
+     * \param [in]  dio3Mask      DIO3 mask
+     */
+    void SetDioIrqParams( uint16_t irqMask, uint16_t dio1Mask, uint16_t dio2Mask, uint16_t dio3Mask );
 
-/**
- * @brief Returns the matching frequency
- *
- * \retval      1: 868 MHz
- *              0: 915 MHz
- */
-uint8_t GetFreqSelect( void ) ;
+    /*!
+     * \brief Returns the current IRQ status
+     *
+     * \retval      irqStatus     IRQ status
+     */
+    uint16_t GetIrqStatus( void );
 
-/**
- * @brief RF Switch power on
- */
-void AntSwOn( void ) ;
+    /*
+     * \brief Indicates if DIO2 is used to control an RF Switch
+     *
+     * \param [in] enable     true of false
+     */
+    void SetDio2AsRfSwitchCtrl( uint8_t enable );
+    
+    /*
+     * \brief Indicates if the Radio main clock is supplied from a tcxo
+     *
+     * \param [in] tcxoVoltage     voltage used to control the TCXO
+     * \param [in] timeout         time given to the TCXO to go to 32MHz
+     */
+    void SetDio3AsTcxoCtrl( RadioTcxoCtrlVoltage_t tcxoVoltage, uint32_t timeout );
+    
+    /*!
+     * \brief Sets the RF frequency
+     *
+     * \param [in]  frequency     RF frequency [Hz]
+     */
+    void SetRfFrequency( uint32_t frequency );
 
-/**
- * @brief RF Switch power off
- */
-void AntSwOff( void );
+    /*!
+     * \brief Sets the radio for the given protocol
+     *
+     * \param [in]  packetType    [PACKET_TYPE_GFSK, PACKET_TYPE_LORA]
+     *
+     * \remark This method has to be called before SetRfFrequency,
+     *         SetModulationParams and SetPacketParams
+     */
+    void SetPacketType( RadioPacketTypes_t packetType );
 
-/**
- * @brief Process the analysis of radio IRQs and calls callback functions
- *        depending on radio state
- */
-void ProcessIrqs( void );
+    /*!
+     * \brief Gets the current radio protocol
+     *
+     * \retval      packetType    [PACKET_TYPE_GFSK, PACKET_TYPE_LORA]
+     */
+    RadioPacketTypes_t GetPacketType( void );
+
+    /*!
+     * \brief Sets the transmission parameters
+     *
+     * \param [in]  power         RF output power [-18..13] dBm
+     * \param [in]  rampTime      Transmission ramp up time
+     */
+    void SetTxParams( int8_t power, RadioRampTimes_t rampTime );
+    
+    /*!
+     * \brief Set the modulation parameters
+     *
+     * \param [in]  modParams     A structure describing the modulation parameters
+     */
+    void SetModulationParams( ModulationParams_t *modParams );
+
+    /*!
+     * \brief Sets the packet parameters
+     *
+     * \param [in]  packetParams  A structure describing the packet parameters
+     */
+    void SetPacketParams( PacketParams_t *packetParams );
+
+    /*!
+     * \brief Sets the Channel Activity Detection (CAD) parameters
+     *
+     * \param [in]  cadSymbolNum   The number of symbol to use for CAD operations
+     *                             [LORA_CAD_01_SYMBOL, LORA_CAD_02_SYMBOL,
+     *                              LORA_CAD_04_SYMBOL, LORA_CAD_08_SYMBOL,
+     *                              LORA_CAD_16_SYMBOL]
+     * \param [in]  cadDetPeak     Limite for detection of SNR peak used in the CAD
+     * \param [in]  cadDetMin      Set the minimum symbol recognition for CAD
+     * \param [in]  cadExitMode    Operation to be done at the end of CAD action
+     *                             [LORA_CAD_ONLY, LORA_CAD_RX, LORA_CAD_LBT]
+     * \param [in]  cadTimeout     Defines the timeout value to abort the CAD activity
+     */
+    void SetCadParams( RadioLoRaCadSymbols_t cadSymbolNum, uint8_t cadDetPeak, uint8_t cadDetMin, RadioCadExitModes_t cadExitMode, uint32_t cadTimeout );
+
+    /*!
+     * \brief Sets the data buffer base address for transmission and reception
+     *
+     * \param [in]  txBaseAddress Transmission base address
+     * \param [in]  rxBaseAddress Reception base address
+     */
+    void SetBufferBaseAddresses( uint8_t txBaseAddress, uint8_t rxBaseAddress );
+
+    /*!
+     * \brief Gets the current radio status
+     *
+     * \retval      status        Radio status
+     */
+    RadioStatus_t GetStatus( void );
+
+    /*!
+     * \brief Returns the instantaneous RSSI value for the last packet received
+     *
+     * \retval      rssiInst      Instantaneous RSSI
+     */
+    int8_t GetRssiInst( void );
+
+    /*!
+     * \brief Gets the last received packet buffer status
+     *
+     * \param [out] payloadLength Last received packet payload length
+     * \param [out] rxStartBuffer Last received packet buffer address pointer
+     */
+    void GetRxBufferStatus( uint8_t *payloadLength, uint8_t *rxStartBuffer );
+
+    /*!
+     * \brief Gets the last received packet payload length
+     *
+     * \param [out] pktStatus     A structure of packet status
+     */
+    void GetPacketStatus( PacketStatus_t *pktStatus );
+
+    /*!
+     * \brief Returns the possible system erros
+     *
+     * \retval sysErrors Value representing the possible sys failures
+     */
+    RadioError_t GetDeviceErrors( void );
+
+    /*!
+     * \brief Clears the IRQs
+     *
+     * \param [in]  irq           IRQ(s) to be cleared
+     */
+    void ClearIrqStatus( uint16_t irq );
+
+    /*!
+     * \brief Set the driver in polling mode.
+     *
+     * In polling mode the application is responsible to call ProcessIrqs( ) to
+     * execute callbacks functions.
+     * The default mode is Interrupt Mode.
+     * @code
+     * // Initializations and callbacks declaration/definition
+     * radio = SX126x( mosi, miso, sclk, nss, busy, int1, int2, int3, rst, &callbacks );
+     * radio.Init( );
+     * radio.SetPollingMode( );
+     *
+     * while( true )
+     * {
+     *                            //     IRQ processing is automatically done
+     *     radio.ProcessIrqs( );  // <-- here, as well as callback functions
+     *                            //     calls
+     *     // Do some applicative work
+     * }
+     * @endcode
+     *
+     * \see SX126x::SetInterruptMode
+     */
+     void SetPollingMode( void );
+
+    /*!
+     * \brief Set the driver in interrupt mode.
+     *
+     * In interrupt mode, the driver communicate with the radio during the
+     * interruption by direct calls to ProcessIrqs( ). The main advantage is
+     * the possibility to have low power application architecture.
+     * This is the default mode.
+     * @code
+     * // Initializations and callbacks declaration/definition
+     * radio = SX126x( mosi, miso, sclk, nss, busy, int1, int2, int3, rst, &callbacks );
+     * radio.Init( );
+     * radio.SetInterruptMode( );   // Optionnal. Driver default behavior
+     *
+     * while( true )
+     * {
+     *     // Do some applicative work
+     * }
+     * @endcode
+     *
+     * \see SX126x::SetPollingMode
+     */
+     void SetInterruptMode( void );
+
+    /*!
+     * \brief Resets the radio
+     */
+    void Reset( void );
+
+    /*!
+     * \brief Wake-ups the radio from Sleep mode
+     */
+    void Wakeup( void );
+
+    /*!
+     * \brief Process the analysis of radio IRQs and calls callback functions
+     *        depending on radio state
+     */
+    void ProcessIrqs( void );
+
+};
+
+

@@ -35,11 +35,17 @@ int log_registerLogger(LOGGER logger) {
 }
 
 void log_msg(LOG_LEVEL level, const char *msg, ...) {
-
+    va_list va;
     if (level <= log_level) {
+        systime_t now = chVTGetSystemTime();
         msgString[0] = '\n';
         msgString[1] = '\r';
-        chsnprintf(&msgString[2], 126, msg);
+        chsnprintf(&msgString[2], 10, "%8X: ", now);
+        va_start(va, msg);
+        chvsnprintf(&msgString[11], 116, msg, va);
+        va_end(va);
+
+
 
         for (int i = 0; i < MAX_LOGGER; i++) {
             if (loggerList[i] != 0) {

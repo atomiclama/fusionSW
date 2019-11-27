@@ -1,0 +1,36 @@
+; --------------------------------------------------------------------------------
+; @Title: Startup script for debug of STM32 boards over SWD
+; @Description: 
+;   This is demo script shows how to connect to start a debug session 
+;   on STM32 using JTAG
+; @Keywords: Debug, STM32, SWD
+; @Author: HDA
+; @Board: *STM32*
+; @Chip: STM32*
+; @Copyright: (C) 1989-2014 Lauterbach GmbH, licensed for use with TRACE32(R) only
+; --------------------------------------------------------------------------------
+; $Id: stm32_startup_swd.cmm 7821 2014-10-29 11:06:58Z kjmal $
+
+; Basic setup
+  RESet
+  SYStem.RESet
+  SYStem.CPU STM32F* ;select the STM32 CPU
+  SYStem.CONFIG.DEBUGPORTTYPE SWD
+  SYStem.Up
+
+  ; open some windows
+  ;WinCLEAR
+
+  WinPOS 0% 0% 50% 50%
+  List.auto
+
+  WinPOS 50% 0% 50% 50%
+  Register.view /SpotLight
+
+
+  FLASH.AUTO ALL
+  Data.LOAD.Elf D:\Andy\working\tx\variant\RT-STM32F446RE-NUCLEO64\build\ch.elf
+  FLASH.AUTO off
+
+
+  ENDDO

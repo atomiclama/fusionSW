@@ -1,9 +1,9 @@
 
 
-ALLCSRC += $(ROOTDIR)/output/outThread.c \
-		   $(ROOTDIR)/output/modemThread.c
+ALLCSRC += 
 		   
 ALLINC  += $(ROOTDIR)/output
 
-ALLCPPSRC += $(ROOTDIR)/output/DemoApplication.cpp
-ALLINC  += $(ROOTDIR)/ext/sx126xlib
+ALLCPPSRC += $(ROOTDIR)/output/modemThread.cpp \
+			$(ROOTDIR)/output/outThread.cpp \
+			$(ROOTDIR)/output/testThread.cpp

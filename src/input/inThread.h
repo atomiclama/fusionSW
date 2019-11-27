@@ -8,7 +8,17 @@
 #ifndef INTHREAD_H_
 #define INTHREAD_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void inThread_ini(void);
+
+#ifdef __cplusplus
+}
+#endif
+
+
 
 
 
