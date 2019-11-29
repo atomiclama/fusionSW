@@ -3,6 +3,7 @@
 //#include "rt_test_root.h"
 //#include "oslib_test_root.h"
 
+#include "msg_core.h"
 #include "log_core.h"
 #include "log_serial.h"
 #include "inThread.h"
@@ -99,6 +100,9 @@ int main(void) {
     halInit();
     chSysInit();
 
+    // must do early as it is used by logger and reset of system.
+    msg_init();
+    
     // ini the logging system early on.
     log_init(LOG_ALL);
 

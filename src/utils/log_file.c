@@ -5,22 +5,13 @@
  *      Author: gb7beda1
  */
 
-#include <log_core.h>
+
 #include <stdio.h>
 #include <string.h>
 
-static void fileLogger(const char * msg);
+#include "log_core.h"
 
 static FILE * logfile;
-
-void log_fileInit() {
-
-    logfile = fopen("/mmc/log.txt", "a+");
-
-    if (logfile != NULL) {
-        log_registerLogger(fileLogger);
-    }
-}
 
 static void fileLogger(const char * msg) {
     if (logfile == NULL) {
@@ -30,4 +21,13 @@ static void fileLogger(const char * msg) {
 
     fclose(logfile);
     logfile = NULL;
+}
+
+void log_fileInit() {
+
+    logfile = fopen("/mmc/log.txt", "a+");
+
+    if (logfile != NULL) {
+        log_registerLogger(fileLogger);
+    }
 }

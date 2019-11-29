@@ -4,7 +4,6 @@
 #include "log_core.h"
 #include "log_serial.h"
 
-//static FILE * logSerial;
 static BaseSequentialStream *chp;
 
 static void serialLogger(const char * msg) {
