@@ -220,7 +220,7 @@ void __early_init(void) {
 bool sdc_lld_is_card_inserted(SDCDriver *sdcp) {
 
   (void)sdcp;
-  /* CHTODO: Fill the implementation.*/
+  /* TODO: Fill the implementation.*/
   return true;
 }
 
@@ -230,7 +230,7 @@ bool sdc_lld_is_card_inserted(SDCDriver *sdcp) {
 bool sdc_lld_is_write_protected(SDCDriver *sdcp) {
 
   (void)sdcp;
-  /* CHTODO: Fill the implementation.*/
+  /* TODO: Fill the implementation.*/
   return false;
 }
 #endif /* HAL_USE_SDC */
@@ -242,7 +242,7 @@ bool sdc_lld_is_write_protected(SDCDriver *sdcp) {
 bool mmc_lld_is_card_inserted(MMCDriver *mmcp) {
 
   (void)mmcp;
-  /* CHTODO: Fill the implementation.*/
+  /* TODO: Fill the implementation.*/
   return true;
 }
 
@@ -252,46 +252,19 @@ bool mmc_lld_is_card_inserted(MMCDriver *mmcp) {
 bool mmc_lld_is_write_protected(MMCDriver *mmcp) {
 
   (void)mmcp;
-  /* CHTODO: Fill the implementation.*/
+  /* TODO: Fill the implementation.*/
   return false;
 }
 #endif
 
 /**
  * @brief   Board-specific initialization code.
- * @note    You can add your board-specific code here.
+ * @todo    Add your board-specific code, if any.
  */
 void boardInit(void) {
-  // uart 1
-  palSetPadMode(GPIOA, 9, PAL_MODE_ALTERNATE(7));   // tx
-  palSetPadMode(GPIOA, 10, PAL_MODE_ALTERNATE(7));  // rx
-
-  // uart 2
-  palSetPadMode(GPIOA, 2, PAL_MODE_ALTERNATE(7));   // tx
-  palSetPadMode(GPIOA, 3, PAL_MODE_ALTERNATE(7));   // rx
-
-  // uart 3
-  palSetPadMode(GPIOC, 10, PAL_MODE_ALTERNATE(7));   // tx
-  palSetPadMode(GPIOC, 11, PAL_MODE_ALTERNATE(7));   // rx
-
-  // uart 4
-  palSetPadMode(GPIOA, 0, PAL_MODE_ALTERNATE(8));   // tx
-  palSetPadMode(GPIOA, 1, PAL_MODE_ALTERNATE(8));   // rx
   
   // spi 2
-  palSetPadMode(GPIOB, 13, PAL_MODE_ALTERNATE(5));  // sck
-  palSetPadMode(GPIOB, 14, PAL_MODE_ALTERNATE(5));  // miso
-  palSetPadMode(GPIOB, 15, PAL_MODE_ALTERNATE(5));  // mosi
-
-  // i2c 1
-  palSetPadMode(GPIOB, 6, PAL_MODE_ALTERNATE(4));  // scl
-  palSetPadMode(GPIOB, 7, PAL_MODE_ALTERNATE(4));  // sda
-
-  // i2c 2
-  palSetPadMode(GPIOB, 10, PAL_MODE_ALTERNATE(4));  // scl
-  palSetPadMode(GPIOB, 11, PAL_MODE_ALTERNATE(4));  // sda
-
-  // swo
-  palSetPadMode(GPIOB, 3, PAL_MODE_ALTERNATE(0));   // swo
-
+  palSetPadMode(GPIOC, 1, PAL_MODE_ALTERNATE(7));
+  palSetPadMode(GPIOC, 2, PAL_MODE_ALTERNATE(5));
+  palSetPadMode(GPIOB, 10, PAL_MODE_ALTERNATE(5));
 }

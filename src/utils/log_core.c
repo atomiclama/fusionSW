@@ -9,7 +9,7 @@ static LOG_LEVEL log_level;
 
 // static char msgString[128];
 
-#define MAX_LOGGER 2
+#define MAX_LOGGER 5
 
 static LOGGER loggerList[MAX_LOGGER];
 
@@ -40,7 +40,7 @@ void log_msg(LOG_LEVEL level, const char *msg, ...) {
     if (level <= log_level) {
         systime_t now = chVTGetSystemTime();
         char *msgString;
-        msg_alloc((uint8_t **)&msgString);
+        msg_alloc((uint8_t *)&msgString);
 
         msgString[0] = '\n';
         msgString[1] = '\r';

@@ -1,5 +1,7 @@
 
 #include "ch.h"
+#include "log_core.h"
+#include <string.h>
 
 
 static void swoLogger(const char * msg) {

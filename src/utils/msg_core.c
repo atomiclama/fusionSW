@@ -5,9 +5,8 @@
 #include "ch.h"
 #include "msg_core.h"
 
-// uart idle
-// http://www.chibios.com/forum/viewtopic.php?f=25&t=3441&start=10
-
+// 2x per port 
+// 1 for log
 
 #define MSG_NUM 16
 
@@ -31,9 +30,9 @@ void msg_init(void) {
     }
 }
 
-void msg_alloc (uint8_t ** pBuff) {
+void msg_alloc (uint8_t * pBuff) {
 
-    (void)chMBFetchTimeout(&msgMailbox, (msg_t*)*pBuff, TIME_INFINITE);
+    (void)chMBFetchTimeout(&msgMailbox, (msg_t*)pBuff, TIME_INFINITE);
 }
 
 void msg_free (uint8_t * pBuff) {

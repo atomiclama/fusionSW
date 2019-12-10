@@ -9,6 +9,21 @@
 #include "inThread.h"
 #include "modemThread.h"
 #include "outThread.h"
+#include "main.h"
+
+
+// board specific
+DigitalOut led(GPIOA, 5);
+
+SX126x radio1Hw(&SPID2);  
+SX126x radio2Hw(&SPID2);
+
+DigitalOut radio1Nss(GPIOC, 3);
+DigitalIn  radio1Busy(GPIOC, 0);
+
+DigitalOut radio2Nss(GPIOB, 4);
+DigitalIn  radio2Busy(GPIOB, 5);
+
 
 extern mailbox_t txMailbox; 
 
@@ -100,11 +115,11 @@ int main(void) {
     halInit();
     chSysInit();
 
-    // must do early as it is used by logger and reset of system.
+    // must do early as it is used by logger and rest of system.
     msg_init();
     
     // ini the logging system early on.
-    log_init(LOG_ALL);
+    log_init(LOG_ERROR);
 
     // start and register a serial logger.
     sdStart(&SD2, NULL);

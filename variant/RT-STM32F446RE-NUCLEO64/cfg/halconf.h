@@ -29,9 +29,9 @@
 #define HALCONF_H
 
 #define _CHIBIOS_HAL_CONF_
-#define _CHIBIOS_HAL_CONF_VER_7_1_
+#define _CHIBIOS_HAL_CONF_VER_7_0_
 
-#include "../../../variant/RT-STM32F446RE-NUCLEO64/cfg/mcuconf.h"
+#include "mcuconf.h"
 
 /**
  * @brief   Enables the PAL subsystem.

@@ -4,39 +4,90 @@
 #include "ccportab.h"
 
 
-#include "spi.h"
-#include "sx126x.h"
+
 
 #include "modemThread.h"
+#include "msg_core.h"
 
+#include "main.h"
 
-// 2 radio devices share the same spi bus.
-
- SX126x radio1Hw(&SPID2);  
- SX126x radio2Hw(&SPID2);
-
-static DigitalOut radio1Nss(GPIOC, 3);
-static DigitalIn radio1Busy(GPIOC, 0);
-
-static DigitalOut radio2Nss(GPIOB, 4);
-static DigitalIn radio2Busy(GPIOB, 5);
 
 static THD_WORKING_AREA(waThread3, 512);
 static THD_WORKING_AREA(waThread4, 512);
 
+static THD_WORKING_AREA(radio1Threadwa, 512);
+static THD_WORKING_AREA(radio2Threadwa, 512);
+
+
 
 #define NUM_BUFFERS 5
 
- mailbox_t txMailbox; 
- msg_t     txMailboxBuffer[NUM_BUFFERS];
- 
- mailbox_t rxMailbox;
- msg_t     rxMailboxBuffer[NUM_BUFFERS];
+// data to be transmitted gets queued through here.
+mailbox_t txMailbox; 
+msg_t     txMailboxBuffer[NUM_BUFFERS];
 
+// any data recieved come through here.
+mailbox_t rxMailbox;
+msg_t     rxMailboxBuffer[NUM_BUFFERS];
+
+
+
+static THD_FUNCTION( radioThread, arg) {
+    SX126x * radio = (SX126x *) arg;
+    radio->init();
+
+    while(true) {
+        
+        // rx a single packet then goto standby
+        radio->SetDioIrqParams(IRQ_RX_DONE, 0, 0, 0);
+        radio->ClearIrqStatus(IRQ_RADIO_ALL);
+        radio->SetRx(0); 
+
+        while (true) {
+            // get with timeout a message to tx
+            // use this to time the loop for polling
+            uint8_t* txMsg;
+            uint8_t retVal = chMBFetchTimeout(&txMailbox, (msg_t*)&txMsg, 1);
+            
+            if(retVal == MSG_OK) {
+
+                radio->WriteBuffer( 0x00, txMsg, 10 );
+                radio->SetDioIrqParams(IRQ_TX_DONE, 0, 0, 0);
+                radio->SetTx(0);  
+                // wait for completion
+                while(true){
+                    chThdSleepMilliseconds(1);
+                    volatile uint16_t status = radio->GetIrqStatus();
+                    if (status & IRQ_TX_DONE ) {
+                        break;
+                    }
+                }
+                
+                // msg consumed
+                msg_free(txMsg);
+                break;
+            }
+
+            // poll for reception by read regs to look for packet.
+            uint16_t status = radio->GetIrqStatus();
+        
+            // todo Look into why this is getting triggered when nothing is being TX
+            if (status & IRQ_RX_DONE ) {
+                uint8_t* rxMsg;
+                msg_alloc((uint8_t *)&rxMsg);
+                radio->ReadBuffer( 0, rxMsg, 10 );
+                // msg produced
+                (void)chMBPostTimeout(&rxMailbox, (msg_t)rxMsg, TIME_INFINITE);
+                break;
+            }
+        }
+    }
+}
 
 static THD_FUNCTION( Thread3, arg) {
 
     (void) arg;
+    radio1Hw.init();
     // any old junk to tx
     uint8_t tx[10] = {0,0,1,2,3,4,5,6,7,8};
 
@@ -107,13 +158,26 @@ static THD_FUNCTION( Thread4, arg) {
 
 void modemThread_ini(void) {
 
-    palSetPadMode(GPIOC, 1, PAL_MODE_ALTERNATE(7));
-    palSetPadMode(GPIOC, 2, PAL_MODE_ALTERNATE(5));
-    palSetPadMode(GPIOB, 10, PAL_MODE_ALTERNATE(5));
-
     chMBObjectInit(&rxMailbox, rxMailboxBuffer, NUM_BUFFERS);
     chMBObjectInit(&txMailbox, txMailboxBuffer, NUM_BUFFERS);
 
+#if defined USE_DEBUG_RADIO
     chThdCreateStatic(waThread3, sizeof(waThread3), NORMALPRIO, Thread3, NULL);
     chThdCreateStatic(waThread4, sizeof(waThread4), NORMALPRIO, Thread4, NULL);
+#endif
+
+#if defined USE_RADIO1    
+    // // connect to IO  
+    radio1Hw.nssPin = &radio1Nss;
+    radio1Hw.busyPin = &radio1Busy;
+    chThdCreateStatic(radio1Threadwa, sizeof(radio1Threadwa), NORMALPRIO, radioThread, &radio1Hw);
+#endif
+
+#if defined USE_RADIO2
+    // connect to IO   
+    radio2Hw.nssPin = &radio2Nss;
+    radio2Hw.busyPin = &radio2Busy;
+    chThdCreateStatic(radio2Threadwa, sizeof(radio2Threadwa), NORMALPRIO, radioThread, &radio2Hw);
+#endif
+
 }

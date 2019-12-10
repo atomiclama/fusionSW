@@ -22,8 +22,14 @@ void SX126x::init(void) {
 
     // taken from Semtech app note in sx1262 data sheet
     // 1. If not in STDBY_RC mode, then go to this mode with the command SetStandby(...)
-    SetStandby(STDBY_XOSC);
+    SetStandby(STDBY_RC);
+    
+    // use dio2 as RF switch control so we don't have to.
+    SetDio2AsRfSwitchCtrl( true );
 
+    // SetDio3AsTcxoCtrl( TCXO_CTRL_1_7V, 320 ); //5 ms
+    SetDio3AsTcxoCtrl( TCXO_CTRL_3_3V, (3<<6) ); //3 ms
+    
     // 2. Define the protocol with the command SetPacketType(...)
     SetPacketType(PACKET_TYPE_LORA);
 
@@ -32,9 +38,6 @@ void SX126x::init(void) {
 
     // 4. Define output power and ramping time with the command SetTxParams(...)
     SetTxParams(0, RADIO_RAMP_200_US);
-
-    // use dio2 as RF switch control so we don't have to.
-    SetDio2AsRfSwitchCtrl( true );
 
     // 5.Define where the data payload will be stored with the command SetBufferBaseAddress(...)
     SetBufferBaseAddresses(0,0);
@@ -69,6 +72,9 @@ void SX126x::init(void) {
 
     // 12.Wait for the IRQ TxDone or Timeout: once the packet has been sent the chip goes automatically to STDBY_RC mode
     // 13.Clear the IRQ TxDone flag
+
+    // Set the mode the radio goes back to after a TX/RX 
+    SetRxTxFallbackMode(0x30);  // STDBY_XOSC but uses a different value in this command doh!
 }
 
 
