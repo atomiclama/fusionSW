@@ -30,9 +30,87 @@ msg_t     txMailboxBuffer[NUM_BUFFERS];
 mailbox_t rxMailbox;
 msg_t     rxMailboxBuffer[NUM_BUFFERS];
 
+typedef enum {
+    SETUP_,
+    WAIT_,
+    RX_,
+    TX_,
 
+
+} Radio_State;
 
 static THD_FUNCTION( radioThread, arg) {
+    SX126x * radio = (SX126x *) arg;
+    radio->init();
+    uint8_t* txMsg;
+    Radio_State state = SETUP_;        
+      
+    while(true) {
+        // poll for reception by read regs to look for packet.
+        chThdSleepMilliseconds(1);
+        uint16_t status = radio->GetIrqStatus();
+
+        switch(state) {
+            case SETUP_: {
+                // rx a single packet then goto standby
+                radio->SetDioIrqParams(IRQ_RX_DONE|IRQ_TX_DONE|IRQ_PREAMBLE_DETECTED|IRQ_HEADER_VALID|IRQ_HEADER_ERROR, 0, 0, 0);
+                radio->ClearIrqStatus(IRQ_RADIO_ALL);
+                radio->SetRx(0); 
+                state = WAIT_;
+                break;
+            }
+            case WAIT_: {
+                if (status & (IRQ_PREAMBLE_DETECTED|IRQ_HEADER_VALID))  {
+                    state = RX_;
+                    break;
+                }
+                
+                // uint8_t retVal = chMBFetchTimeout(&txMailbox, (msg_t*)&txMsg, TIME_IMMEDIATE);
+                // if(retVal == MSG_OK) {
+
+                //     radio->WriteBuffer( 0x00, txMsg, 10 );
+                //     radio->SetDioIrqParams(IRQ_TX_DONE, 0, 0, 0);
+                //     radio->SetTx(0);  
+                //     // wait for completion
+                //     state = TX_;                    
+                //     break;
+                // }
+                break;
+            }
+            case RX_: {
+                // todo Look into why this is getting triggered when nothing is being TX
+                if (status & IRQ_RX_DONE ) {
+                    uint8_t* rxMsg;
+                    msg_alloc((uint8_t *)&rxMsg);
+                    radio->ReadBuffer( 0, rxMsg, 10 );
+                    // msg produced
+                    (void)chMBPostTimeout(&rxMailbox, (msg_t)rxMsg, TIME_INFINITE);
+
+                    state = SETUP_;
+                    break;
+                }
+                break;
+            }
+            case TX_: {
+
+                if (status & IRQ_TX_DONE ) {
+                    // msg consumed
+                    msg_free(txMsg);
+                    state = SETUP_;
+                    break;
+                }
+                break;
+            }
+            default: {
+                break;
+            }
+        }
+    }
+}
+
+
+
+static THD_FUNCTION( radioThreadOld, arg) {
     SX126x * radio = (SX126x *) arg;
     radio->init();
 

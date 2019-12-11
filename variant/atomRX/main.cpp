@@ -57,7 +57,7 @@ static THD_FUNCTION( ThreadSerial, arg) {
         while( sdReadTimeout(sdp, &tmp, 1, TIME_MS2I(1))) {
             ;
         }
-        sdReadTimeout(sdp, pbuf, 32, TIME_MS2I(20));
+        while(sdReadTimeout(sdp, pbuf, 32, TIME_MS2I(20)) == 0);
         // post to full buffer
         (void)chMBPostTimeout(&filled_buffers, (msg_t)pbuf, TIME_INFINITE);
 
