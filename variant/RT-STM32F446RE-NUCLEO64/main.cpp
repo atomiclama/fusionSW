@@ -121,9 +121,9 @@ int main(void) {
     // ini the logging system early on.
     log_init(LOG_ERROR);
 
-    // start and register a serial logger.
-    sdStart(&SD2, NULL);
-    log_serialInit((BaseSequentialStream *)&SD2);
+    // // start and register a serial logger.
+    // sdStart(&SD2, NULL);
+    // log_serialInit((BaseSequentialStream *)&SD2);
 
     // and now the file
 
@@ -132,7 +132,7 @@ int main(void) {
     outThread_ini();
     serialThread_ini();
     
-    testThread_ini();
+    // testThread_ini();
 
     uint32_t cnt=0;
 
