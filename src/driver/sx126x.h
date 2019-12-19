@@ -509,9 +509,9 @@ typedef struct
         }Gfsk;
         struct
         {
-            int8_t RssiPkt;                                //!< The RSSI of the last packet
+            int8_t RssiPkt;                                //!< The average RSSI of the last packet
             int8_t SnrPkt;                                 //!< The SNR of the last packet
-            int8_t SignalRssiPkt;
+            int8_t SignalRssiPkt;                          //!< estimation of RSSI LoRa signal
             uint32_t FreqError;
         }LoRa;
     }Params;
@@ -583,6 +583,24 @@ typedef union
     uint16_t Value;
 }RadioError_t;
 
+
+
+class loraConfig {
+    public :
+        loraConfig(RadioLoRaBandwidths_t bw, RadioLoRaCodingRates_t cr, RadioLoRaSpreadingFactors_t sf) {
+        this->bw = bw;
+        this->cr = cr;
+        this->sf = sf;
+    }
+    RadioLoRaBandwidths_t bw;
+    RadioLoRaCodingRates_t cr;
+    RadioLoRaSpreadingFactors_t sf;
+    int8_t power = -5;
+    bool tcxo = false;
+};
+
+
+
 /*!
  * \brief Represents the SX126x and its features
  *
@@ -646,7 +664,7 @@ protected:
      */
     void OnDioIrq( void );
 public:
-    void init(void);
+    void init(loraConfig & config);
     /*!
      * \brief Initializes the radio driver
      */

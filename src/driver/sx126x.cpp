@@ -7,6 +7,7 @@
 
 #include <cstring>
 
+volatile static uint8_t ocpreg;
 
 /*!
  * \brief Radio registers definition
@@ -18,17 +19,22 @@ typedef struct
 }RadioRegisters_t;
 
 
-void SX126x::init(void) {
+void SX126x::init(loraConfig & config) {
 
     // taken from Semtech app note in sx1262 data sheet
     // 1. If not in STDBY_RC mode, then go to this mode with the command SetStandby(...)
     SetStandby(STDBY_RC);
+
+    // use the switching instead of the LDO for a bit more effiency 
+    SetRegulatorMode(USE_DCDC);
     
     // use dio2 as RF switch control so we don't have to.
     SetDio2AsRfSwitchCtrl( true );
 
     // SetDio3AsTcxoCtrl( TCXO_CTRL_1_7V, 320 ); //5 ms
-    SetDio3AsTcxoCtrl( TCXO_CTRL_3_3V, (3<<6) ); //3 ms
+    if(config.tcxo) {
+        SetDio3AsTcxoCtrl( TCXO_CTRL_3_3V, (3<<6) ); //3 ms
+    }
     
     // 2. Define the protocol with the command SetPacketType(...)
     SetPacketType(PACKET_TYPE_LORA);
@@ -37,7 +43,7 @@ void SX126x::init(void) {
     SetRfFrequency( 868000000 );
 
     // 4. Define output power and ramping time with the command SetTxParams(...)
-    SetTxParams(0, RADIO_RAMP_200_US);
+    SetTxParams(config.power, RADIO_RAMP_200_US);
 
     // 5.Define where the data payload will be stored with the command SetBufferBaseAddress(...)
     SetBufferBaseAddresses(0,0);
@@ -49,9 +55,9 @@ void SX126x::init(void) {
     // 7.Define the modulation parameter according to the chosen protocol with the command SetModulationParams(...)
     ModulationParams_t modulationParams;
     modulationParams.PacketType = PACKET_TYPE_LORA;
-    modulationParams.Params.LoRa.Bandwidth = LORA_BW_500;
-    modulationParams.Params.LoRa.CodingRate = LORA_CR_4_8;
-    modulationParams.Params.LoRa.SpreadingFactor =  LORA_SF5;
+    modulationParams.Params.LoRa.Bandwidth = config.bw;         // LORA_BW_500;
+    modulationParams.Params.LoRa.CodingRate = config.cr;        // LORA_CR_4_8;
+    modulationParams.Params.LoRa.SpreadingFactor = config.sf;   // LORA_SF5;
     modulationParams.Params.LoRa.LowDatarateOptimize = false;
     SetModulationParams(&modulationParams);
 
@@ -512,11 +518,13 @@ void SX126x::SetTxParams( int8_t power, RadioRampTimes_t rampTime )
         {
             power = 22;
         }
-        else if( power < -3 )
+        else if( power < -9 )
         {
-            power = -3;
+            power = -9;
         }
-        // WriteReg( REG_OCP, 0x38 ); // current max 160mA for the whole device
+        // uint8_t data = 0x38;
+        ReadRegister(REG_OCP, (uint8_t*)&ocpreg, 1);
+        // WriteRegister(REG_OCP, &data, 1); // current max 160mA for the whole device
     }
     buf[0] = power;
     if( false) //OPT == 0 )

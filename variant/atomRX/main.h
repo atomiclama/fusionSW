@@ -5,7 +5,7 @@ extern "C" {
 #endif
 
 #define USE_RADIO1
-// #define USE_RADIO2
+#define USE_RADIO2
 
 #include "DigitalOut.h"
 #include "spi.h"

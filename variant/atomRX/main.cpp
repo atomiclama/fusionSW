@@ -46,7 +46,7 @@ static THD_FUNCTION( ThreadSerial, arg) {
     
     SerialDriver *sdp = (SerialDriver *)arg;
     sdStart(sdp, &serialConfig);
-    while(true){
+    while(true) {
         // chThdSleepMilliseconds(10);
         uint8_t *pbuf;
  
