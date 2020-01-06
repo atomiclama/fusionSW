@@ -267,4 +267,10 @@ void boardInit(void) {
   palSetPadMode(GPIOC, 1, PAL_MODE_ALTERNATE(7));
   palSetPadMode(GPIOC, 2, PAL_MODE_ALTERNATE(5));
   palSetPadMode(GPIOB, 10, PAL_MODE_ALTERNATE(5));
+
+  // uart 1
+  palSetPadMode(GPIOA, 9, PAL_MODE_ALTERNATE(7)); // tx
+  palSetPadMode(GPIOA, 10, PAL_MODE_ALTERNATE(7)); // rx
+
+
 }

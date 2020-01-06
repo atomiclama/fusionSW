@@ -114,8 +114,7 @@ include $(CHIBIOS)/tools/mk/autobuild.mk
 #include $(CHIBIOS)/test/oslib/oslib_test.mk
 include $(CHIBIOS)/os/hal/lib/streams/streams.mk
 # include $(CHIBIOS)/os/various/cpp_wrappers/chcpp.mk
-include $(ROOTDIR)/input/makefile.mk
-include $(ROOTDIR)/output/makefile.mk
+include $(ROOTDIR)/threads/makefile.mk
 include $(ROOTDIR)/utils/makefile.mk
 include $(ROOTDIR)/driver/makefile.mk
 

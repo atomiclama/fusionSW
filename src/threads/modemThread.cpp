@@ -25,7 +25,7 @@ mailbox_t rxMailbox;
 msg_t     rxMailboxBuffer[NUM_BUFFERS];
 
 // Should give me -120dB sens
-// ~25Km link budget
+// ~25Km link budget for 0dBm tx power. Yeah right!
 loraConfig config(LORA_BW_500, LORA_CR_4_5, LORA_SF9);
 
 
@@ -229,7 +229,7 @@ void modemThread_ini(void) {
 #endif
 
 #if defined USE_RADIO1    
-    // // connect to IO  
+    // connect to IO  
     radio1Hw.nssPin = &radio1Nss;
     radio1Hw.busyPin = &radio1Busy;
     chThdCreateStatic(radio1Threadwa, sizeof(radio1Threadwa), NORMALPRIO, radioThread, &radio1Hw);

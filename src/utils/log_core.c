@@ -7,8 +7,6 @@
 
 static LOG_LEVEL log_level;
 
-// static char msgString[128];
-
 #define MAX_LOGGER 5
 
 static LOGGER loggerList[MAX_LOGGER];

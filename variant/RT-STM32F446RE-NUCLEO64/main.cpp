@@ -78,8 +78,7 @@ static THD_FUNCTION( ThreadSerial, arg) {
 }
 
 void serialThread_ini(void) {
-    palSetPadMode(GPIOA, 9, PAL_MODE_ALTERNATE(7)); // tx
-    palSetPadMode(GPIOA, 10, PAL_MODE_ALTERNATE(7)); // rx
+
         
     /* Creating the mailboxes.*/
     chMBObjectInit(&filled_buffers, filled_buffers_queue, NUM_BUFF);
@@ -121,19 +120,12 @@ int main(void) {
     // ini the logging system early on.
     log_init(LOG_ERROR);
 
-    // // start and register a serial logger.
-    // sdStart(&SD2, NULL);
-    // log_serialInit((BaseSequentialStream *)&SD2);
-
-    // and now the file
 
     inThread_ini();
     modemThread_ini();
     outThread_ini();
     serialThread_ini();
-    
-    // testThread_ini();
-
+ 
     uint32_t cnt=0;
 
     while (true) {

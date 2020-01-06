@@ -27,12 +27,44 @@ DigitalIn  radio2Busy(GPIOB, 12);
 
 extern mailbox_t txMailbox; 
 
-const SerialConfig serialConfig = {
+
+
+void timeout_cb(UARTDriver *uartp) {
+
+    // determine number of bytes RX
+    osalSysLockFromISR();                                                   
+    osalThreadResumeI(&(uartp)->threadrx, MSG_OK);                          
+    osalSysUnlockFromISR(); 
+}
+
+
+const UARTConfig uartConfig = {
+    .txend1_cb = NULL,
+    .txend2_cb = NULL,
+    .rxend_cb = NULL,
+    .rxchar_cb = NULL,
+    .rxerr_cb = NULL,
+    .timeout_cb = NULL,
     .speed = 115200,
-    .cr1 = 0,                  
-    .cr2 = USART_CR2_STOP1_BITS,
+    .cr1 = USART_CR1_IDLEIE,                  
+    .cr2 = USART_CR2_STOP_1,
     .cr3 = 0,
-  };
+};
+
+
+const UARTConfig uartGpsConfig = {
+    .txend1_cb = NULL,
+    .txend2_cb = NULL,
+    .rxend_cb = NULL,
+    .rxchar_cb = NULL,
+    .rxerr_cb = NULL,
+    .timeout_cb = NULL,
+    .speed = 57600,
+    .cr1 = USART_CR1_IDLEIE,                  
+    .cr2 = USART_CR2_STOP_1,
+    .cr3 = 0,
+};
+
 
 
 #define NUM_BUFF 10
@@ -40,40 +72,102 @@ const SerialConfig serialConfig = {
 static msg_t filled_buffers_queue[NUM_BUFF];
 static mailbox_t filled_buffers;
 
-static THD_WORKING_AREA(waThreadSerial, 256);
+static THD_WORKING_AREA(waThreadU1Tx, 128);
+static THD_WORKING_AREA(waThreadU1Rx, 128);
+static THD_WORKING_AREA(waThreadU3Tx, 128);
+static THD_WORKING_AREA(waThreadU3Rx, 128);
+
 
 static THD_FUNCTION( ThreadSerial, arg) {
     
-    SerialDriver *sdp = (SerialDriver *)arg;
-    sdStart(sdp, &serialConfig);
+    UARTDriver *uartp = (UARTDriver *)arg;
+    uartStart(uartp, &uartConfig);
+
     while(true) {
         // chThdSleepMilliseconds(10);
         uint8_t *pbuf;
  
         /* get an empty buffer.*/
         msg_alloc((uint8_t *)&pbuf);
-        uint8_t tmp;
-        // flush read buffer and sync to start of packet by looking for a gap, of at least 1ms.
-        while( sdReadTimeout(sdp, &tmp, 1, TIME_MS2I(1))) {
-            ;
-        }
-        while(sdReadTimeout(sdp, pbuf, 32, TIME_MS2I(20)) == 0);
+ 
+        size_t n = 10;
+        uartReceiveTimeout(uartp, &n, pbuf, TIME_INFINITE);
+
+        // uartStartReceive(uartp, 32, pbuf);
+        // chThdSleepMilliseconds(100);
+        // size_t n = uartStopReceive(uartp);
+
+        // while(sdReadTimeout(sdp, pbuf, 32, TIME_MS2I(20)) == 0);
         // post to full buffer
         (void)chMBPostTimeout(&filled_buffers, (msg_t)pbuf, TIME_INFINITE);
 
         // get from full buffer
         chMBFetchTimeout(&filled_buffers, (msg_t *)&pbuf, TIME_INFINITE);
-        sdWrite(sdp, pbuf, 32);
+        
+        uartSendTimeout(uartp, &n, pbuf, TIME_INFINITE);
 
         // return the buffer
         msg_free(pbuf);
     }
 }
 
+
+static THD_FUNCTION( ThreadURx, arg) {
+    
+    UARTDriver *uartp = (UARTDriver *)arg;
+
+    while(true) {
+        // chThdSleepMilliseconds(10);
+        radioPacket_t* pbuf;
+ 
+        /* get an empty buffer.*/
+        msg_alloc((uint8_t *)&pbuf);
+ 
+        // rx upto this number of bytes.
+        pbuf->cnt = 100;
+
+        uartReceiveTimeout(uartp, &(pbuf->cnt), pbuf->data, TIME_INFINITE);
+
+        if(pbuf->cnt != 0) {
+            (void)chMBPostTimeout(&filled_buffers, (msg_t)pbuf, TIME_INFINITE);
+        }else{
+            msg_free((uint8_t*)pbuf);
+        }
+    }
+}
+static THD_FUNCTION( ThreadUTx, arg) {
+    
+    UARTDriver *uartp = (UARTDriver *)arg;
+ 
+    while(true) {
+
+        radioPacket_t* pbuf;
+ 
+        // get from full buffer
+        uint8_t retVal = chMBFetchTimeout(&filled_buffers, (msg_t *)&pbuf, TIME_INFINITE);
+        if(retVal == MSG_OK) {
+            uartSendTimeout(uartp, &(pbuf->cnt), pbuf->data, TIME_INFINITE);
+
+            // return the buffer
+            msg_free((uint8_t*)pbuf);
+        }
+    }
+}
+
+
+
+
+
 void serialThread_ini(void) {
     /* Creating the mailboxes.*/
     chMBObjectInit(&filled_buffers, filled_buffers_queue, NUM_BUFF);
-    chThdCreateStatic(waThreadSerial, sizeof(waThreadSerial), NORMALPRIO, ThreadSerial, &SD1);
+    // chThdCreateStatic(waThreadSerial, sizeof(waThreadSerial), NORMALPRIO, ThreadSerial, &UARTD1);
+
+    uartStart(&UARTD1, &uartGpsConfig);
+    uartStart(&UARTD2, &uartConfig);
+
+    chThdCreateStatic(waThreadU1Tx, sizeof(waThreadU1Tx), NORMALPRIO, ThreadUTx, &UARTD2);
+    chThdCreateStatic(waThreadU1Rx, sizeof(waThreadU1Rx), NORMALPRIO, ThreadURx, &UARTD1);
 }
 
 
@@ -98,15 +192,12 @@ int main(void) {
     
     // ini the logging system early on.
     log_init(LOG_ALL);
-
-    // start and register a serial logger.
-    // this stopped working after I did the low level uart2 AF pin slection
-    // sdStart(&SD2, NULL);
-    // log_serialInit((BaseSequentialStream *)&SD2);
-
     log_swoInit();
 
-    // and now the file
+    // config
+    // matrix mapping stuff
+    
+
 
     inThread_ini();
     modemThread_ini();
