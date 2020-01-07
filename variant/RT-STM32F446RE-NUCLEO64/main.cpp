@@ -9,6 +9,7 @@
 #include "inThread.h"
 #include "modemThread.h"
 #include "outThread.h"
+#include "serialThread.h"
 #include "main.h"
 
 

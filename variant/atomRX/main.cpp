@@ -10,6 +10,7 @@
 #include "inThread.h"
 #include "modemThread.h"
 #include "outThread.h"
+#include "serialThread.h"
 #include "main.h"
 
 
@@ -26,16 +27,6 @@ DigitalOut radio2Nss(GPIOC, 15);
 DigitalIn  radio2Busy(GPIOB, 12);
 
 extern mailbox_t txMailbox; 
-
-
-
-void timeout_cb(UARTDriver *uartp) {
-
-    // determine number of bytes RX
-    osalSysLockFromISR();                                                   
-    osalThreadResumeI(&(uartp)->threadrx, MSG_OK);                          
-    osalSysUnlockFromISR(); 
-}
 
 
 const UARTConfig uartConfig = {
@@ -72,52 +63,56 @@ const UARTConfig uartGpsConfig = {
 static msg_t filled_buffers_queue[NUM_BUFF];
 static mailbox_t filled_buffers;
 
+
+
+typedef struct {
+    UARTDriver *uartp;
+    map_e id;
+} threadConfig_s;
+
+#if STM32_UART_USE_USART1 == TRUE
 static THD_WORKING_AREA(waThreadU1Tx, 128);
 static THD_WORKING_AREA(waThreadU1Rx, 128);
+
+const threadConfig_s configU1rx = {
+    .uartp = &UARTD1,
+    .id = U1rx,
+};
+const threadConfig_s configU1tx = {
+    .uartp = &UARTD1,
+    .id = U1tx,
+};
+#endif
+
+#if STM32_UART_USE_USART2 == TRUE
+static THD_WORKING_AREA(waThreadU2Tx, 128);
+static THD_WORKING_AREA(waThreadU2Rx, 128);
+
+const threadConfig_s configU2tx = {
+    .uartp = &UARTD2,
+    .id = U2tx,
+};
+const threadConfig_s configU2rx = {
+    .uartp = &UARTD2,
+    .id = U2rx,
+};
+#endif 
+
+#if STM32_UART_USE_USART3 == TRUE
 static THD_WORKING_AREA(waThreadU3Tx, 128);
 static THD_WORKING_AREA(waThreadU3Rx, 128);
-
-
-static THD_FUNCTION( ThreadSerial, arg) {
-    
-    UARTDriver *uartp = (UARTDriver *)arg;
-    uartStart(uartp, &uartConfig);
-
-    while(true) {
-        // chThdSleepMilliseconds(10);
-        uint8_t *pbuf;
- 
-        /* get an empty buffer.*/
-        msg_alloc((uint8_t *)&pbuf);
- 
-        size_t n = 10;
-        uartReceiveTimeout(uartp, &n, pbuf, TIME_INFINITE);
-
-        // uartStartReceive(uartp, 32, pbuf);
-        // chThdSleepMilliseconds(100);
-        // size_t n = uartStopReceive(uartp);
-
-        // while(sdReadTimeout(sdp, pbuf, 32, TIME_MS2I(20)) == 0);
-        // post to full buffer
-        (void)chMBPostTimeout(&filled_buffers, (msg_t)pbuf, TIME_INFINITE);
-
-        // get from full buffer
-        chMBFetchTimeout(&filled_buffers, (msg_t *)&pbuf, TIME_INFINITE);
-        
-        uartSendTimeout(uartp, &n, pbuf, TIME_INFINITE);
-
-        // return the buffer
-        msg_free(pbuf);
-    }
-}
+#endif
 
 
 static THD_FUNCTION( ThreadURx, arg) {
-    
-    UARTDriver *uartp = (UARTDriver *)arg;
+   
+    UARTDriver *uartp = ((threadConfig_s *)arg)->uartp;
 
-    while(true) {
-        // chThdSleepMilliseconds(10);
+    map_e map = ((threadConfig_s *)arg)->id;
+    mailbox_t * mailbox = map_getMailbox(map);
+    
+    while(mailbox) {
+
         radioPacket_t* pbuf;
  
         /* get an empty buffer.*/
@@ -129,22 +124,25 @@ static THD_FUNCTION( ThreadURx, arg) {
         uartReceiveTimeout(uartp, &(pbuf->cnt), pbuf->data, TIME_INFINITE);
 
         if(pbuf->cnt != 0) {
-            (void)chMBPostTimeout(&filled_buffers, (msg_t)pbuf, TIME_INFINITE);
-        }else{
+            (void)chMBPostTimeout(mailbox, (msg_t)pbuf, TIME_INFINITE);
+        } else {
             msg_free((uint8_t*)pbuf);
-        }
+        }    
     }
 }
 static THD_FUNCTION( ThreadUTx, arg) {
     
-    UARTDriver *uartp = (UARTDriver *)arg;
+    UARTDriver *uartp = ((threadConfig_s *)arg)->uartp;
+
+    map_e map = ((threadConfig_s *)arg)->id;
+    mailbox_t * mailbox = map_getMailbox(map);
  
-    while(true) {
+    while(mailbox) {
 
         radioPacket_t* pbuf;
  
         // get from full buffer
-        uint8_t retVal = chMBFetchTimeout(&filled_buffers, (msg_t *)&pbuf, TIME_INFINITE);
+        uint8_t retVal = chMBFetchTimeout(mailbox, (msg_t *)&pbuf, TIME_INFINITE);
         if(retVal == MSG_OK) {
             uartSendTimeout(uartp, &(pbuf->cnt), pbuf->data, TIME_INFINITE);
 
@@ -154,23 +152,18 @@ static THD_FUNCTION( ThreadUTx, arg) {
     }
 }
 
-
-
-
-
 void serialThread_ini(void) {
     /* Creating the mailboxes.*/
     chMBObjectInit(&filled_buffers, filled_buffers_queue, NUM_BUFF);
-    // chThdCreateStatic(waThreadSerial, sizeof(waThreadSerial), NORMALPRIO, ThreadSerial, &UARTD1);
 
     uartStart(&UARTD1, &uartGpsConfig);
+    chThdCreateStatic(waThreadU1Tx, sizeof(waThreadU1Tx), NORMALPRIO, ThreadUTx, (void*)&configU1tx);
+    chThdCreateStatic(waThreadU1Rx, sizeof(waThreadU1Rx), NORMALPRIO, ThreadURx, (void*)&configU1rx);
+
     uartStart(&UARTD2, &uartConfig);
-
-    chThdCreateStatic(waThreadU1Tx, sizeof(waThreadU1Tx), NORMALPRIO, ThreadUTx, &UARTD2);
-    chThdCreateStatic(waThreadU1Rx, sizeof(waThreadU1Rx), NORMALPRIO, ThreadURx, &UARTD1);
+    chThdCreateStatic(waThreadU2Tx, sizeof(waThreadU2Tx), NORMALPRIO, ThreadUTx, (void*)&configU2tx);
+    chThdCreateStatic(waThreadU2Rx, sizeof(waThreadU2Rx), NORMALPRIO, ThreadURx, (void*)&configU2rx);
 }
-
-
 
 /*
  * Application entry point.
@@ -196,7 +189,7 @@ int main(void) {
 
     // config
     // matrix mapping stuff
-    
+    map_init();
 
 
     inThread_ini();

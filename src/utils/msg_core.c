@@ -10,7 +10,6 @@
 
 #define MSG_NUM 16
 
-
 // this is our pool of storage for messages
 static uint8_t msgPool [MSG_NUM] [MSG_SIZE];
 
@@ -45,18 +44,7 @@ void msg_free (uint8_t * pBuff) {
 #define MAP_NUM 6
 #define MAP_SIZE 2
 
-typedef enum{
-    R1tx,
-    R1rx,
-    R2tx,
-    R2rx,
-    U1tx,
-    U1rx,
-    U2tx,
-    U2rx,
-    Clitx,
-    Clirx
-}map_e;
+
 typedef struct {
     msg_t queue[MAP_SIZE];
     mailbox_t mailbox;
@@ -66,16 +54,20 @@ typedef struct {
 
 static map_t mapping[MAP_NUM];
 
-void map_init() {
+void map_init(void) {
     for(uint8_t i=0; i<MAP_NUM; i++ ) {
         chMBObjectInit(&(mapping[i].mailbox), mapping[i].queue, MAP_SIZE);
+        mapping[i].in = Free;
+        mapping[i].out = Free;
     }
     // 
     // need to populate the in and out of the mapping
     //
-    mapping[0].in = R1rx;
-    mapping[0].out = U1tx;
-}
+    mapping[0].in = U1rx;
+    mapping[0].out = U2tx;
+
+    mapping[1].in = U2rx;
+    mapping[1].out = U1tx;
 }
 
 mailbox_t * map_getMailbox(map_e id) {
@@ -86,4 +78,3 @@ mailbox_t * map_getMailbox(map_e id) {
     }
     return NULL;
 }
-

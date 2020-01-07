@@ -11,28 +11,29 @@
 
 extern mailbox_t rxMailbox;
 
-static THD_WORKING_AREA(waThread1, 32);
+static THD_WORKING_AREA(waThread1, 64);
 
 static THD_FUNCTION( Thread1, arg) {
     (void) arg;
     chRegSetThreadName("blinker");
-    bool level = false;
+    bool level = true;
     while(true) {
         radioPacket_t* rxMsg;
         uint8_t retVal = chMBFetchTimeout(&rxMailbox, (msg_t*)&rxMsg, 50000);
         if(retVal == MSG_OK) {
             int8_t snr = rxMsg->snr;
             int8_t rssi = rxMsg->rssi;
-            int8_t sig = rxMsg->sig;
+            // int8_t sig = rxMsg->sig;
 
-            log_msg(LOG_ALL, "\rSNR: %d\rRSSI: %d\rSig: %d",snr, rssi, sig);
+            log_msg(LOG_ALL, "SNR: %3d RSSI: %3d",snr, rssi);
             // msg consumed
             msg_free((uint8_t*)rxMsg);
+            
+        } else {
+            // level = false;
         }
-        // chThdSleepMilliseconds(500);
-        level^=1;
+        level ^= 1;
         led.write(level);
-        // log_msg(LOG_ALL, "Heart Beat");
     }
 }
 
