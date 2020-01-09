@@ -5,7 +5,10 @@ extern "C" {
 #endif
 
 #define USE_DEBUG_RADIO
-
+#define USE_RADIO1
+#define USE_RADIO2
+#define USE_TXCO    false
+#define USE_TX_CFG  true
 
 #include "DigitalOut.h"
 #include "spi.h"

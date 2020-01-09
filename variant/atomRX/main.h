@@ -6,6 +6,8 @@ extern "C" {
 
 #define USE_RADIO1
 #define USE_RADIO2
+#define USE_TXCO    true
+
 
 #include "DigitalOut.h"
 #include "spi.h"

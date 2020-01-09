@@ -13,6 +13,7 @@ extern void msg_alloc (uint8_t * pBuff);
 extern void msg_free (uint8_t * pBuff);
 
 typedef enum {
+    None,
     R1tx,
     R1rx,
     R2tx,

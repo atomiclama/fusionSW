@@ -1,7 +1,7 @@
 // taken from: -
 // http://www.chibios.org/dokuwiki/doku.php?id=chibios:book:kernel_mailboxes
 
-
+#include "config.h"
 #include "ch.h"
 #include "msg_core.h"
 
@@ -42,7 +42,7 @@ void msg_free (uint8_t * pBuff) {
 // Mapping to use to transfer the messages around the system
 
 #define MAP_NUM 6
-#define MAP_SIZE 2
+#define MAP_SIZE 1
 
 
 typedef struct {
@@ -63,11 +63,34 @@ void map_init(void) {
     // 
     // need to populate the in and out of the mapping
     //
+    #ifdef working_point
     mapping[0].in = U1rx;
     mapping[0].out = U2tx;
 
     mapping[1].in = U2rx;
     mapping[1].out = U1tx;
+
+    mapping[2].in = R1rx;
+    mapping[2].out = Clirx;
+
+    mapping[3].in = Clitx;
+    mapping[3].out = R1tx;
+    #endif
+
+#if defined USE_RX_CFG == true
+    mapping[0].in = R1rx;
+    mapping[0].out = U2tx;
+#endif
+
+#if defined USE_TX_CFG == true
+    mapping[0].in = U1rx;
+    mapping[0].out = R1tx;
+
+    mapping[1].in = R1rx;
+    mapping[1].out = Clirx;
+#endif
+
+
 }
 
 mailbox_t * map_getMailbox(map_e id) {
