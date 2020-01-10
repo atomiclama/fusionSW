@@ -8,6 +8,7 @@
 #include "modemThread.h"
 #include "outThread.h"
 #include "serialThread.h"
+#include "convThread.h"
 #include "main.h"
 
 
@@ -53,6 +54,7 @@ int main(void) {
     modemThread_ini();
     outThread_ini();
     serialThread_ini();
+    convThread_ini();
  
     mailbox_t* txMailbox = map_getMailbox(Clitx);
 

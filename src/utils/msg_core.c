@@ -79,7 +79,11 @@ void map_init(void) {
 
 #if defined USE_RX_CFG == true
     mapping[0].in = R1rx;
-    mapping[0].out = U2tx;
+    mapping[0].out = decodeIn;
+
+    mapping[1].in = decodeOut;
+    mapping[1].out = U2tx;
+
 #endif
 
 #if defined USE_TX_CFG == true

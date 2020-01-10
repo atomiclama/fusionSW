@@ -11,6 +11,7 @@
 #include "modemThread.h"
 #include "outThread.h"
 #include "serialThread.h"
+#include "convThread.h"
 #include "main.h"
 
 
@@ -56,6 +57,7 @@ int main(void) {
     modemThread_ini();
     outThread_ini();
     serialThread_ini();
+    convThread_ini();
     
     while (true) {    
         if (!palReadPad(GPIOC, GPIOC_BUTTON)) {

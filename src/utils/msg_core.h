@@ -28,6 +28,10 @@ typedef enum {
     U4rx,
     Clitx,
     Clirx,
+    decodeIn,
+    decodeOut,
+    encodeIn,
+    encodeOut,
     Free
 }map_e;
 
