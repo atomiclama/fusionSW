@@ -6,6 +6,7 @@
 #include "modemThread.h"
 
 #include "main.h"
+#include "proto.h"
 #include "log_core.h"
 #include "msg_core.h"
 

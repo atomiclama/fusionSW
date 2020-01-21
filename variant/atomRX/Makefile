@@ -117,7 +117,7 @@ include $(CHIBIOS)/os/hal/lib/streams/streams.mk
 include $(ROOTDIR)/threads/makefile.mk
 include $(ROOTDIR)/utils/makefile.mk
 include $(ROOTDIR)/driver/makefile.mk
-
+include $(ROOTDIR)/protocol/makefile.mk
 
 
 

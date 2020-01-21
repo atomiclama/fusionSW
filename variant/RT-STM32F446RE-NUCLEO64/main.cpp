@@ -4,12 +4,14 @@
 #include "msg_core.h"
 #include "log_core.h"
 #include "log_serial.h"
+#include "log_swo.h"
 #include "inThread.h"
 #include "modemThread.h"
 #include "outThread.h"
 #include "serialThread.h"
 #include "convThread.h"
 #include "main.h"
+#include "proto.h"
 
 
 // board specific
@@ -44,7 +46,8 @@ int main(void) {
     msg_init();
     
     // ini the logging system early on.
-    log_init(LOG_ERROR);
+    log_init(LOG_ALL);
+    log_swoInit();
 
     // config
     // matrix mapping stuff

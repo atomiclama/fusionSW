@@ -3,6 +3,7 @@
 #include "hal.h"
 
 #include "main.h"
+#include "proto.h"
 #include "serialThread.h"
 #include "modemThread.h"
 #include "msg_core.h"

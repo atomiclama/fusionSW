@@ -7,6 +7,7 @@
 #include "msg_core.h"
 
 #include "main.h"
+#include "proto.h"
 
 typedef struct {
     SX126x * radio;

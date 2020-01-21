@@ -84,14 +84,19 @@ void map_init(void) {
     mapping[1].in = decodeOut;
     mapping[1].out = U2tx;
 
+    mapping[2].in = U2rx;
+    mapping[2].out = Clirx;
 #endif
 
 #if defined USE_TX_CFG == true
     mapping[0].in = U1rx;
-    mapping[0].out = R1tx;
+    mapping[0].out = decodeIn;
 
-    mapping[1].in = R1rx;
-    mapping[1].out = Clirx;
+    mapping[1].in = decodeOut;
+    mapping[1].out = R1tx;
+    
+    mapping[2].in = R1rx;
+    mapping[2].out = Clirx;
 #endif
 
 
