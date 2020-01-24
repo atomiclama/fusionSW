@@ -8,7 +8,7 @@
 // 2x per port 
 // 1 for log
 
-#define MSG_NUM 16
+#define MSG_NUM 20
 
 // this is our pool of storage for messages
 static uint8_t msgPool [MSG_NUM] [MSG_SIZE];

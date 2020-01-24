@@ -13,6 +13,7 @@
 #include "serialThread.h"
 #include "convThread.h"
 #include "main.h"
+#include "proto.h"
 
 
 // board specific
@@ -59,10 +60,20 @@ int main(void) {
     serialThread_ini();
     convThread_ini();
     
+    // get same mailbox that rx would use just to send some periodic data.
+    // mailbox_t* txMailbox = map_getMailbox(R1rx);
+
     while (true) {    
-        if (!palReadPad(GPIOC, GPIOC_BUTTON)) {
-            log_msg(LOG_ALL, "button pressed");
-        }
+        // if (!palReadPad(GPIOC, GPIOC_BUTTON)) {
+        //     log_msg(LOG_ALL, "button pressed");
+        // }
+        // if(0) {
+        //     radioPacket_t* txMsg;
+        //     msg_alloc((uint8_t *)&txMsg);
+        //     txMsg->data[0] = 0xAA;
+        //     chMBPostTimeout(txMailbox, (msg_t)txMsg, TIME_INFINITE);
+        // }
+
         chThdSleepMilliseconds(100);
     }
 }

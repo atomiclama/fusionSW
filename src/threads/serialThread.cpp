@@ -23,6 +23,19 @@ const UARTConfig uartConfig = {
 };
 
 
+const UARTConfig uartCrsfConfig = {
+    .txend1_cb = NULL,
+    .txend2_cb = NULL,
+    .rxend_cb = NULL,
+    .rxchar_cb = NULL,
+    .rxerr_cb = NULL,
+    .timeout_cb = NULL,
+    .speed = 420000,
+    .cr1 = USART_CR1_IDLEIE,                  
+    .cr2 = USART_CR2_STOP_1,
+    .cr3 = 0,
+};
+
 const UARTConfig uartGpsConfig = {
     .txend1_cb = NULL,
     .txend2_cb = NULL,
@@ -96,6 +109,7 @@ static THD_FUNCTION( ThreadURx, arg) {
         uartReceiveTimeout(uartp, &(pbuf->cnt), pbuf->data, TIME_INFINITE);
 
         if(pbuf->cnt != 0) {
+            pbuf->stamp = chVTGetSystemTime();
             // if it does not post staright away then drop it.
             if(chMBPostTimeout(mailbox, (msg_t)pbuf, TIME_IMMEDIATE) != MSG_OK){
                 msg_free((uint8_t*)pbuf);
@@ -124,12 +138,12 @@ static THD_FUNCTION( ThreadUTx, arg) {
             // return the buffer
             msg_free((uint8_t*)pbuf);
 
-            // this is a dirty hack.
-            // if there is a msg already waiting then drop it probably duplicate from radio.
-            retVal = chMBFetchTimeout(mailbox, (msg_t *)&pbuf, TIME_IMMEDIATE);
-            if(retVal == MSG_OK) {
-                msg_free((uint8_t*)pbuf);
-            }
+            // // this is a dirty hack.
+            // // if there is a msg already waiting then drop it probably duplicate from radio.
+            // retVal = chMBFetchTimeout(mailbox, (msg_t *)&pbuf, TIME_IMMEDIATE);
+            // if(retVal == MSG_OK) {
+            //     msg_free((uint8_t*)pbuf);
+            // }
         }
     }
 }
@@ -145,7 +159,8 @@ void serialThread_ini(void) {
     chThdCreateStatic(waThreadU1Rx, sizeof(waThreadU1Rx), NORMALPRIO, ThreadURx, (void*)&configU1rx);
 #endif
 #if STM32_UART_USE_USART2 == TRUE
-    uartStart(&UARTD2, &uartConfig);
+    uartStart(&UARTD2, &uartCrsfConfig);
+    // uartStart(&UARTD2, &uartConfig);
     chThdCreateStatic(waThreadU2Tx, sizeof(waThreadU2Tx), NORMALPRIO, ThreadUTx, (void*)&configU2tx);
     chThdCreateStatic(waThreadU2Rx, sizeof(waThreadU2Rx), NORMALPRIO, ThreadURx, (void*)&configU2rx);
 #endif

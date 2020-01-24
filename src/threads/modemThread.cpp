@@ -16,7 +16,7 @@ typedef struct {
 }radioThreadCfg_s;
 
 #if defined USE_RADIO1    
-static THD_WORKING_AREA(radio1Threadwa, 512);
+static THD_WORKING_AREA(radio1Threadwa, 1024);
 const radioThreadCfg_s configR1 = {
     .radio = &radio1Hw,
     #ifdef USE_DEBUG_RADIO
@@ -29,7 +29,7 @@ const radioThreadCfg_s configR1 = {
 #endif
 
 #if defined USE_RADIO2
-static THD_WORKING_AREA(radio2Threadwa, 512);
+static THD_WORKING_AREA(radio2Threadwa, 1024);
 const radioThreadCfg_s configR2 = {
     .radio = &radio2Hw,
     .idRx = R1rx,
@@ -50,11 +50,13 @@ static THD_FUNCTION( radioThread, arg) {
 
     mailbox_t* txMailbox = map_getMailbox(mapTx); 
     mailbox_t* rxMailbox = map_getMailbox(mapRx);
+    mailbox_t* statusMailbox = map_getMailbox(Clirx);
 
     config.tcxo = USE_TXCO;
     radio->init(config);
     radioPacket_t* txMsg;
-    radioState_t state = SETUP_;        
+    radioState_t state = SETUP_;       
+    uint16_t crcErrorCnt = 0; 
       
     while(rxMailbox || txMailbox) {
         // poll for reception by read regs to look for packet.
@@ -107,25 +109,38 @@ static THD_FUNCTION( radioThread, arg) {
             }
             case RX_: {
                 if(status & IRQ_CRC_ERROR) {
+                    crcErrorCnt++;
                     state = SETUP_;
                     break;
                 }
                 if (status & IRQ_RX_DONE ) {
                     radioPacket_t* rxMsg;
                     msg_alloc((uint8_t *)&rxMsg);
+                    rxMsg->stamp = chVTGetSystemTime();
                     radio->ReadBuffer( 0, rxMsg->data, 32 );
                     rxMsg->cnt = 32;
-                    PacketStatus_t status;
-                    radio->GetPacketStatus(&status);
-                    rxMsg->snr = status.Params.LoRa.SnrPkt;
-                    rxMsg->rssi = status.Params.LoRa.RssiPkt;
-                    rxMsg->sig = status.Params.LoRa.SignalRssiPkt;
+                    
                     // msg produced
                     // if it does not post straight away then drop it.
                     if(chMBPostTimeout(rxMailbox, (msg_t)rxMsg, TIME_IMMEDIATE) != MSG_OK){
                         msg_free((uint8_t*)rxMsg);
                     }
-
+                    
+                    radioPacket_t* statusMsg;
+                    // get another msg
+                    msg_alloc((uint8_t *)&statusMsg);
+                    PacketStatus_t *status = (PacketStatus_t*)statusMsg->data;
+                    radio->GetPacketStatus(status);
+                    statusMsg->snr = status->Params.LoRa.SnrPkt;
+                    statusMsg->rssi = status->Params.LoRa.RssiPkt;
+                    // statusMsg->sig = status->Params.LoRa.SignalRssiPkt;
+                    statusMsg->dbm = crcErrorCnt;
+                    // if it does not post straight away then drop it.
+                    if(chMBPostTimeout(statusMailbox, (msg_t)statusMsg, TIME_IMMEDIATE) != MSG_OK){
+                        msg_free((uint8_t*)statusMsg);
+                    }
+      
+                
                     state = SETUP_;
                     break;
                 }

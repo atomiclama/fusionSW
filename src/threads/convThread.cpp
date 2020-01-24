@@ -1,5 +1,6 @@
 
 #include "ch.h"
+#include "config.h"
 
 #include "main.h"
 #include "log_core.h"
@@ -26,28 +27,39 @@ static THD_FUNCTION( convThread, arg) {
     mailbox_t* inMbx = map_getMailbox(decodeIn);
     mailbox_t* outMbx = map_getMailbox(decodeOut);
        
+    systime_t prevMsg = chVTGetSystemTime();
     // thread will exit if nothing configured
     while(inMbx && outMbx) {
 
         radioPacket_t* inMsg;
         uint8_t retVal = chMBFetchTimeout(inMbx, (msg_t*)&inMsg, TIME_INFINITE);
         if(retVal == MSG_OK) {
+            systime_t curTime = chVTGetSystemTime();
+            if(curTime-prevMsg > 0x20) {
+                prevMsg = curTime;
+                radioPacket_t* outMsg;
+                msg_alloc((uint8_t *)&outMsg);
 
-            radioPacket_t* outMsg;
-            msg_alloc((uint8_t *)&outMsg);
+                // decode the iBus or other frame to our internal
+                // was iBusDecode
+#if defined USE_TX_CFG == true
+                if(iBusEncode(inMsg, outMsg) == DEC_PASS) {
+#endif
 
-            // decode the iBus or other frame to our internal
-            if(iBusDecode(inMsg, outMsg) == DEC_PASS) {
-                // flush the out mbx so that the latest rc data is available
-                uint8_t * flushMsg;
-                while(chMBFetchTimeout(outMbx, (msg_t*)&flushMsg, TIME_IMMEDIATE) == MSG_OK){
-                    msg_free(flushMsg); 
-                }
-                chMBPostTimeout(outMbx, (msg_t)outMsg, TIME_INFINITE);
-            } else {
-                // didn't decode so drop msg
-                msg_free((uint8_t*)outMsg); 
-            }  
+#if defined USE_RX_CFG == true
+                if(crsfDecodeAir(inMsg, outMsg) == DEC_PASS) {
+#endif
+                    // flush the out mbx so that the latest rc data is available
+                    uint8_t * flushMsg;
+                    while(chMBFetchTimeout(outMbx, (msg_t*)&flushMsg, TIME_IMMEDIATE) == MSG_OK){
+                        msg_free(flushMsg); 
+                    }
+                    chMBPostTimeout(outMbx, (msg_t)outMsg, TIME_INFINITE);
+                } else {
+                    // didn't decode so drop msg
+                    msg_free((uint8_t*)outMsg); 
+                }  
+            }
             // msg consumed          
             msg_free((uint8_t*)inMsg);            
         } 

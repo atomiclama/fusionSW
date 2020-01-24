@@ -123,11 +123,25 @@ typedef struct {
     uint8_t crc;
 } crsfStatsFrame_s;
 
-
+/**
+ * @brief decode our air format and encode to the crsf frame.
+ * 
+ * @param in 
+ * @param out 
+ * @return decodeRes_e 
+ */
 extern decodeRes_e crsfDecodeAir(radioPacket_t* in, radioPacket_t* out);
+
+/**
+ * @brief 
+ * 
+ * @param in 
+ * @param out 
+ * @return decodeRes_e 
+ */
 extern decodeRes_e crsfEncodeAir(radioPacket_t* in, radioPacket_t* out);
 
-
+extern decodeRes_e crsfEncodeStatus(radioPacket_t* in, radioPacket_t* out);
 
 #ifdef __cplusplus
 }

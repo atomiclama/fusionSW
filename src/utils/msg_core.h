@@ -9,7 +9,6 @@ extern "C" {
 
 extern void msg_init(void);
 extern void msg_alloc (uint8_t * pBuff);
-
 extern void msg_free (uint8_t * pBuff);
 
 typedef enum {
@@ -33,7 +32,7 @@ typedef enum {
     encodeIn,
     encodeOut,
     Free
-}map_e;
+} map_e;
 
 extern void map_init(void);
 extern mailbox_t * map_getMailbox(map_e id);

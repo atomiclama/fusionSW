@@ -31,7 +31,7 @@ bool  isChecksumOk(radioPacket_t* in) {
 }
 
 // __attribute__((optimize("O0")))
-decodeRes_e iBusDecode(radioPacket_t* in, radioPacket_t* out) {
+decodeRes_e iBusEncode(radioPacket_t* in, radioPacket_t* out) {
     decodeRes_e retVal = DEC_FAIL;
     // first validate frame checksum
     if(isChecksumOk(in)) {
@@ -40,7 +40,7 @@ decodeRes_e iBusDecode(radioPacket_t* in, radioPacket_t* out) {
         uint8_t offset = 2;
         uint8_t* ibus =  in->data;
         for (uint8_t i = 0; i < IBUS_MAX_CHANNEL; i++, offset += 2) {
-            ibusChannelData[i] = ibus[offset] + ((ibus[offset + 1] ) << 8) - 1000; // & 0x0F
+            ibusChannelData[i] = ibus[offset] + ((ibus[offset + 1] ) << 8) - 988; // & 0x0F
         }
     }
     rcData_s* outData = (rcData_s*)(out->data);
@@ -60,12 +60,14 @@ decodeRes_e iBusDecode(radioPacket_t* in, radioPacket_t* out) {
     outData->rc11 = (ibusChannelData[10] > 500);
     outData->rc12 = (ibusChannelData[11] > 500);
 
+    out->cnt = sizeof(rcData_s);
+
     // scrap the above until tested.
-    memcpy(out, in, sizeof(radioPacket_t));
+    // memcpy(out, in, sizeof(radioPacket_t));
     return retVal;
 }
 
-decodeRes_e iBusEncode(radioPacket_t* in, radioPacket_t* out) {
+decodeRes_e iBusDecode(radioPacket_t* in, radioPacket_t* out) {
     decodeRes_e retVal = DEC_FAIL;
 
     out->cnt = 32;

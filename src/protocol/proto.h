@@ -24,7 +24,7 @@ typedef struct {
     uint16_t rc8:4;
     uint16_t rc15:1;   
     uint16_t rc16:1;
-}rcData_s;
+} rcData_s;
 
 
 typedef union {
@@ -35,11 +35,12 @@ typedef union {
         uint8_t size;
     }field;
     
-}radioData_t;
+} radioData_t;
 
 
 
 typedef struct {
+    systime_t stamp; // time stamp 
     uint8_t id;     // channel slot some way of detiermining where it goes. 
     size_t  cnt;    // packet count used to detect duplicate packets or dropped packets.
     int8_t snr;     // extracted from radio device
@@ -55,7 +56,7 @@ typedef struct {
 typedef enum {
     DEC_FAIL = -1,
     DEC_PASS = 0
-}decodeRes_e;
+} decodeRes_e;
 
 
 

@@ -67,7 +67,7 @@ void SX126x::init(loraConfig & config) {
     packetParams.Params.LoRa.InvertIQ = LORA_IQ_NORMAL;
     packetParams.Params.LoRa.PreambleLength = 16;
     packetParams.Params.LoRa.HeaderType = LORA_PACKET_IMPLICIT; // fixed
-    packetParams.Params.LoRa.PayloadLength = 32;
+    packetParams.Params.LoRa.PayloadLength = 8;
     packetParams.Params.LoRa.CrcMode = LORA_CRC_ON;
     SetPacketParams(&packetParams);
 
