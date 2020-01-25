@@ -16,11 +16,6 @@
 
 static THD_WORKING_AREA(waConvThread, 128);
 
-
-
-
-
-
 static THD_FUNCTION( convThread, arg) {
     (void) arg;
 
@@ -41,13 +36,12 @@ static THD_FUNCTION( convThread, arg) {
                 msg_alloc((uint8_t *)&outMsg);
 
                 // decode the iBus or other frame to our internal
-                // was iBusDecode
 #if defined USE_TX_CFG == true
-                if(iBusEncode(inMsg, outMsg) == DEC_PASS) {
+                if(iBusEncodeAir(outMsg, inMsg) == DEC_PASS) {
 #endif
 
 #if defined USE_RX_CFG == true
-                if(crsfDecodeAir(inMsg, outMsg) == DEC_PASS) {
+                if(crsfDecodeAir(outMsg, inMsg) == DEC_PASS) {
 #endif
                     // flush the out mbx so that the latest rc data is available
                     uint8_t * flushMsg;

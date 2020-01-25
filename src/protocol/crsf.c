@@ -10,7 +10,7 @@
 
 #include "crc.h"
 
-
+#include <string.h>
 
 static uint8_t doCrc(uint8_t * data, uint8_t length) {
     uint8_t crc = 0;
@@ -21,7 +21,9 @@ static uint8_t doCrc(uint8_t * data, uint8_t length) {
     return crc;
 }
 
-decodeRes_e crsfEncodeAir(radioPacket_t* in, radioPacket_t* out) {
+decodeRes_e crsfEncodeAir(radioPacket_t* out, radioPacket_t* in) {
+    (void)in;
+    (void)out;
     return DEC_PASS;
 }
 
@@ -51,7 +53,7 @@ off = 172
 const float crsfGain = 1.6f;
 const uint16_t crsfOff = 172;
 
-decodeRes_e crsfDecodeAir(radioPacket_t* in, radioPacket_t* out) {
+decodeRes_e crsfDecodeAir(radioPacket_t* out, radioPacket_t* in) {
 
     // this is the size of the frame that is to be transfered.
     out->cnt = sizeof(crsfChanFrame_s);
@@ -92,18 +94,22 @@ decodeRes_e crsfDecodeAir(radioPacket_t* in, radioPacket_t* out) {
 }
 
 // generate a link status frame to send to the FC.
-decodeRes_e crsfEncodeStatus(radioPacket_t* in, radioPacket_t* out) {
+decodeRes_e crsfEncodeStatus(radioPacket_t* out, radioPacket_t* in) {
 
     (void)in; // just for the time being.
 
     // this is the size of the frame that is to be transfered.
     out->cnt = sizeof(crsfStatsFrame_s);
+    // clear our stats data.
+    memset(out->data, 0, out->cnt);
+
     crsfStatsFrame_s * buffer = (crsfStatsFrame_s *)out->data;
     buffer->header.device_addr = CRSF_ADDRESS_FLIGHT_CONTROLLER;
     buffer->header.frame_size = sizeof(crsfLinkStats_s) + 2;    // +2 due to type and crc
     buffer->header.type = CRSF_FRAMETYPE_LINK_STATISTICS;
 
     // hardcode some debug data just to test.
+    buffer->stats.active_antenna = 0;
     buffer->stats.uplink_RSSI_1 = 60;
     buffer->stats.uplink_Link_quality =75;
     buffer->stats.uplink_SNR = 10;

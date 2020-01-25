@@ -16,7 +16,7 @@ volatile uint32_t ibusChannelData[IBUS_MAX_CHANNEL];
 
 //__attribute__((optimize("O0")))
 
-bool  isChecksumOk(radioPacket_t* in) {
+static bool isChecksumOk(radioPacket_t* in) {
     uint8_t* ibus =  &(in->data[0]);
     uint16_t chksum = 0;
     
@@ -31,7 +31,7 @@ bool  isChecksumOk(radioPacket_t* in) {
 }
 
 // __attribute__((optimize("O0")))
-decodeRes_e iBusEncode(radioPacket_t* in, radioPacket_t* out) {
+decodeRes_e iBusEncodeAir(radioPacket_t* out, radioPacket_t* in) {
     decodeRes_e retVal = DEC_FAIL;
     // first validate frame checksum
     if(isChecksumOk(in)) {
@@ -67,7 +67,7 @@ decodeRes_e iBusEncode(radioPacket_t* in, radioPacket_t* out) {
     return retVal;
 }
 
-decodeRes_e iBusDecode(radioPacket_t* in, radioPacket_t* out) {
+decodeRes_e iBusDecode(radioPacket_t* out, radioPacket_t* in) {
     decodeRes_e retVal = DEC_FAIL;
 
     out->cnt = 32;

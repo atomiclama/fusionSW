@@ -27,11 +27,10 @@ static THD_FUNCTION( Thread1, arg) {
         radioPacket_t* rxMsg;
         uint8_t retVal = chMBFetchTimeout(rxMailbox, (msg_t*)&rxMsg, 10000);
         if(retVal == MSG_OK) {
-            if(++cnt > 50)
-            {
+            if(++cnt > 50) {
                 msg_free((uint8_t*)rxMsg);
                 cnt = 0;
-            }else{
+            } else {
             int8_t snr = rxMsg->snr;
             int8_t rssi = rxMsg->rssi;
             int8_t sig = rxMsg->dbm;
@@ -44,7 +43,7 @@ static THD_FUNCTION( Thread1, arg) {
             // missed packet detection LQ calculation.
             // other low priority stuff and slow down the output update.
             // carefull rxMsg resue.
-            crsfEncodeStatus(NULL, rxMsg);
+            crsfEncodeStatus(rxMsg, NULL);
             
             // if it does not post straight away then drop it.
             if(chMBPostTimeout(txMailbox, (msg_t)rxMsg, TIME_IMMEDIATE) != MSG_OK){

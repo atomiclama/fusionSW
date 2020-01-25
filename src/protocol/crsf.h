@@ -130,7 +130,7 @@ typedef struct {
  * @param out 
  * @return decodeRes_e 
  */
-extern decodeRes_e crsfDecodeAir(radioPacket_t* in, radioPacket_t* out);
+extern decodeRes_e crsfDecodeAir(radioPacket_t* out, radioPacket_t* in);
 
 /**
  * @brief 
@@ -139,9 +139,9 @@ extern decodeRes_e crsfDecodeAir(radioPacket_t* in, radioPacket_t* out);
  * @param out 
  * @return decodeRes_e 
  */
-extern decodeRes_e crsfEncodeAir(radioPacket_t* in, radioPacket_t* out);
+extern decodeRes_e crsfEncodeAir(radioPacket_t* out, radioPacket_t* in);
 
-extern decodeRes_e crsfEncodeStatus(radioPacket_t* in, radioPacket_t* out);
+extern decodeRes_e crsfEncodeStatus(radioPacket_t* out, radioPacket_t* in);
 
 #ifdef __cplusplus
 }

@@ -6,8 +6,8 @@
 extern "C" {
 #endif
 
-decodeRes_e iBusDecode(radioPacket_t* in, radioPacket_t* out);
-decodeRes_e iBusEncode(radioPacket_t* in, radioPacket_t* out);
+decodeRes_e iBusDecode(radioPacket_t* out, radioPacket_t* in);
+decodeRes_e iBusEncodeAir(radioPacket_t* out, radioPacket_t* in);
 
 
 

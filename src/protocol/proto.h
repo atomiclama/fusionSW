@@ -40,15 +40,17 @@ typedef union {
 
 
 typedef struct {
-    systime_t stamp; // time stamp 
-    uint8_t id;     // channel slot some way of detiermining where it goes. 
-    size_t  cnt;    // packet count used to detect duplicate packets or dropped packets.
-    int8_t snr;     // extracted from radio device
-    int8_t rssi;    // dito
-    int8_t sig;     // dito 
-    int8_t dbm;     // maybe passed from tx 
- 
-    uint8_t data[100]; // the data tx/rx
+    systime_t stamp;    // time stamp 
+    // uint8_t id;         // need to remove
+
+    // these need to goto a type to be transfered in data block
+    int8_t snr;         // extracted from radio device
+    int8_t rssi;        // dito
+    int8_t sig;         // dito 
+    int8_t dbm;         // maybe passed from tx 
+
+    size_t  cnt;        // size of data block.
+    uint8_t data[100];  // the data tx/rx
 
 } radioPacket_t;
 
