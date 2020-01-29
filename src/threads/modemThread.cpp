@@ -2,12 +2,14 @@
 #include "hal.h"
 
 #include "ccportab.h"
+#include "config.h"
 
+#include "proto.h"
 #include "modemThread.h"
 #include "msg_core.h"
 
 #include "main.h"
-#include "proto.h"
+
 
 typedef struct {
     SX126x * radio;
@@ -54,7 +56,7 @@ static THD_FUNCTION( radioThread, arg) {
 
     config.tcxo = USE_TXCO;
     radio->init(config);
-    radioPacket_t* txMsg;
+
     radioState_t state = SETUP_;       
     uint16_t crcErrorCnt = 0; 
       
@@ -66,11 +68,11 @@ static THD_FUNCTION( radioThread, arg) {
         switch(state) {
             case SETUP_: {
                 if(txMailbox) {
-                    uint8_t retVal = chMBFetchTimeout(txMailbox, (msg_t*)&txMsg, 1);
+                    uint8_t retVal = chBSemWaitTimeout(&airTxSema, 1);
                     
                     if(retVal == MSG_OK) {
                         radio->SetStandby(STDBY_XOSC);
-                        radio->WriteBuffer( 0x00, txMsg->data, 32 );
+                        radio->WriteBuffer( 0x00,  (uint8_t*)&airData, AIR_DATA_SIZE);
                         radio->SetDioIrqParams(IRQ_TX_DONE, 0, 0, 0);
                         radio->ClearIrqStatus(IRQ_RADIO_ALL);
                         radio->SetTx(0);  
@@ -88,16 +90,16 @@ static THD_FUNCTION( radioThread, arg) {
                 break;
             }
             case WAIT_: {
-                if (status & (IRQ_PREAMBLE_DETECTED|IRQ_HEADER_VALID))  {
+                if(status & (IRQ_PREAMBLE_DETECTED|IRQ_HEADER_VALID)) {
                     state = RX_;
                     break;
                 }
                 if(txMailbox) {
-                    uint8_t retVal = chMBFetchTimeout(txMailbox, (msg_t*)&txMsg, 1);
+                    uint8_t retVal = chBSemWaitTimeout(&airTxSema, 1);
                     
                     if(retVal == MSG_OK) {
                         radio->SetStandby(STDBY_XOSC);
-                        radio->WriteBuffer( 0x00, txMsg->data, 32 );
+                        radio->WriteBuffer( 0x00, (uint8_t*)&airData, AIR_DATA_SIZE);
                         radio->SetDioIrqParams(IRQ_TX_DONE, 0, 0, 0);
                         radio->ClearIrqStatus(IRQ_RADIO_ALL);
                         radio->SetTx(0);  
@@ -113,19 +115,13 @@ static THD_FUNCTION( radioThread, arg) {
                     state = SETUP_;
                     break;
                 }
-                if (status & IRQ_RX_DONE ) {
-                    radioPacket_t* rxMsg;
-                    msg_alloc((uint8_t *)&rxMsg);
-                    rxMsg->stamp = chVTGetSystemTime();
-                    radio->ReadBuffer( 0, rxMsg->data, 32 );
-                    rxMsg->cnt = 32;
+                if(status & IRQ_RX_DONE) {                    
+           
+           #if defined USE_RX_CFG == true
+                    radio->ReadBuffer( 0, (uint8_t*)&airData, AIR_DATA_SIZE);
+                    chBSemSignal(&airRxSema);
                     
-                    // msg produced
-                    // if it does not post straight away then drop it.
-                    if(chMBPostTimeout(rxMailbox, (msg_t)rxMsg, TIME_IMMEDIATE) != MSG_OK){
-                        msg_free((uint8_t*)rxMsg);
-                    }
-                    
+         #endif
                     radioPacket_t* statusMsg;
                     // get another msg
                     msg_alloc((uint8_t *)&statusMsg);
@@ -138,8 +134,7 @@ static THD_FUNCTION( radioThread, arg) {
                     // if it does not post straight away then drop it.
                     if(chMBPostTimeout(statusMailbox, (msg_t)statusMsg, TIME_IMMEDIATE) != MSG_OK){
                         msg_free((uint8_t*)statusMsg);
-                    }
-      
+                    }     
                 
                     state = SETUP_;
                     break;
@@ -147,9 +142,7 @@ static THD_FUNCTION( radioThread, arg) {
                 break;
             }
             case TX_: {
-                if (status & IRQ_TX_DONE ) {
-                    // msg consumed
-                    msg_free((uint8_t*)txMsg);
+                if (status & IRQ_TX_DONE) {
                     state = SETUP_;
                     break;
                 }

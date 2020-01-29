@@ -53,7 +53,7 @@ off = 172
 const float crsfGain = 1.6f;
 const uint16_t crsfOff = 172;
 
-decodeRes_e crsfDecodeAir(radioPacket_t* out, radioPacket_t* in) {
+decodeRes_e crsfDecodeAir(radioPacket_t* out, rcData_s* airData) {
 
     // this is the size of the frame that is to be transfered.
     out->cnt = sizeof(crsfChanFrame_s);
@@ -62,7 +62,7 @@ decodeRes_e crsfDecodeAir(radioPacket_t* out, radioPacket_t* in) {
     buffer->header.frame_size = sizeof(crsfPackedChan_s) + 2;    // +2 due to type and crc
     buffer->header.type = CRSF_FRAMETYPE_RC_CHANNELS_PACKED;
 
-    rcData_s* airData = (rcData_s*)(in->data);
+    // rcData_s* airData = (rcData_s*)(in->data);
 
     // 4 10 bit channels
     buffer->chan.ch0 = (airData->rc1 *crsfGain)+crsfOff;
@@ -94,9 +94,7 @@ decodeRes_e crsfDecodeAir(radioPacket_t* out, radioPacket_t* in) {
 }
 
 // generate a link status frame to send to the FC.
-decodeRes_e crsfEncodeStatus(radioPacket_t* out, radioPacket_t* in) {
-
-    (void)in; // just for the time being.
+decodeRes_e crsfEncodeStatus(radioPacket_t* out, int8_t rssi, uint8_t lq) {
 
     // this is the size of the frame that is to be transfered.
     out->cnt = sizeof(crsfStatsFrame_s);
@@ -110,9 +108,9 @@ decodeRes_e crsfEncodeStatus(radioPacket_t* out, radioPacket_t* in) {
 
     // hardcode some debug data just to test.
     buffer->stats.active_antenna = 0;
-    buffer->stats.uplink_RSSI_1 = 60;
-    buffer->stats.uplink_Link_quality =75;
-    buffer->stats.uplink_SNR = 10;
+    buffer->stats.uplink_RSSI_1 = rssi * -1;
+    buffer->stats.uplink_Link_quality = lq;
+    buffer->stats.uplink_SNR = 10;          // not used by BF
     // perform the crc generation
     buffer->crc = doCrc(&(buffer->header.type), sizeof(crsfLinkStats_s)+1 );
     return DEC_PASS;

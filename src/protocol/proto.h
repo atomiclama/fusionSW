@@ -26,6 +26,13 @@ typedef struct {
     uint16_t rc16:1;
 } rcData_s;
 
+#define AIR_DATA_SIZE sizeof(rcData_s)
+
+extern binary_semaphore_t airTxSema;
+extern binary_semaphore_t airRxSema;
+
+extern rcData_s airData;
+
 
 typedef union {
     uint8_t data[100]; // the data tx/rx
