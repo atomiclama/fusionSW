@@ -1,7 +1,14 @@
 
-#include "ch.h"
-#include "log_core.h"
+#include <stdint.h>
 #include <string.h>
+
+#include "log_core.h"
+#include "log_swo.h"
+
+#include "ch.h"
+
+// void ITM_SendChar(char);
+
 
 
 static void swoLogger(const char * msg) {
@@ -14,7 +21,5 @@ static void swoLogger(const char * msg) {
 }
 
 void log_swoInit(void) {
-    // init ITM swo channel
-    
     log_registerLogger(swoLogger);
 }

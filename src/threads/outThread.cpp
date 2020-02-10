@@ -31,11 +31,20 @@ static THD_FUNCTION( Thread1, arg) {
 
                 int8_t snr = rxMsg->snr;
                 int8_t rssi = rxMsg->rssi;
-                int8_t lq = rxMsg->dbm;
+                int8_t crcErr = rxMsg->dbm;
 
-                log_msg(LOG_ALL, "SNR: %3d RSSI: %3d CRC: %3d",snr, rssi, lq);
-
+                // got what we want so ditch msg
                 msg_free((uint8_t*)rxMsg);
+
+                log_msg(LOG_ALL, "SNR: %3d RSSI: %3d d",snr, rssi);
+               
+                // https://www.loratracker.uk/lora-signal-quality-rssi-or-snr/
+                // scale snr so can be used in lQ display
+                // snr ~ +10 -20 dbm 
+                // -7.5 dbm limit for our SF7 
+                // lq +70 vgood.
+                // lq 35  prob not going to work.
+                uint8_t lq = 50 + (snr*2);
 
                 radioPacket_t* statusMsg;
                 msg_alloc((uint8_t *)&statusMsg);

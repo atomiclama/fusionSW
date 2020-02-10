@@ -28,11 +28,7 @@ typedef struct {
 
 #define AIR_DATA_SIZE sizeof(rcData_s)
 
-extern binary_semaphore_t airTxSema;
-extern binary_semaphore_t airRxSema;
-
 extern rcData_s airData;
-
 
 typedef union {
     uint8_t data[100]; // the data tx/rx
@@ -47,7 +43,7 @@ typedef union {
 
 
 typedef struct {
-    systime_t stamp;    // time stamp 
+    uint32_t stamp;    // time stamp 
     // uint8_t id;         // need to remove
 
     // these need to goto a type to be transfered in data block

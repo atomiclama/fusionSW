@@ -4,8 +4,7 @@
 #pragma once
 
 
-#include "modemThread.h"
-#include "convThread.h"
+#include "proto.h"
 
 #ifdef __cplusplus
 extern "C" {

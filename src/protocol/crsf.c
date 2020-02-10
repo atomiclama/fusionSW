@@ -1,16 +1,20 @@
-#include "ch.h"
+
+
+
+#include <string.h>
+#include <stdint.h>
 
 #include "proto.h"
 #include "crsf.h"
-
-
-#include "msg_core.h"
-#include "modemThread.h"
-#include "convThread.h"
-
 #include "crc.h"
 
-#include <string.h>
+// #include "msg_core.h"
+// #include "modemThread.h"
+// #include "convThread.h"
+
+
+
+
 
 static uint8_t doCrc(uint8_t * data, uint8_t length) {
     uint8_t crc = 0;

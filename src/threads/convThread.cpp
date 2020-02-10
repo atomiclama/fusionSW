@@ -1,14 +1,16 @@
 
+#include <string.h>
+
 #include "ch.h"
 #include "config.h"
 
 #include "main.h"
-#include "log_core.h"
-#include "msg_core.h"
-#include "modemThread.h"
-#include <string.h>
 
 #include "convThread.h"
+#include "modemThread.h"
+
+#include "log_core.h"
+#include "msg_core.h"
 
 #include "proto.h"
 #include "crsf.h"

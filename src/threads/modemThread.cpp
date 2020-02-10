@@ -6,6 +6,7 @@
 
 #include "proto.h"
 #include "modemThread.h"
+#include "convThread.h"
 #include "msg_core.h"
 
 #include "main.h"
@@ -91,6 +92,7 @@ static THD_FUNCTION( radioThread, arg) {
             }
             case WAIT_: {
                 if(status & (IRQ_PREAMBLE_DETECTED|IRQ_HEADER_VALID)) {
+
                     state = RX_;
                     break;
                 }
@@ -117,11 +119,10 @@ static THD_FUNCTION( radioThread, arg) {
                 }
                 if(status & IRQ_RX_DONE) {                    
            
-           #if defined USE_RX_CFG == true
+                #if defined USE_RX_CFG == true
                     radio->ReadBuffer( 0, (uint8_t*)&airData, AIR_DATA_SIZE);
-                    chBSemSignal(&airRxSema);
-                    
-         #endif
+                    chBSemSignal(&airRxSema);                    
+                #endif
                     radioPacket_t* statusMsg;
                     // get another msg
                     msg_alloc((uint8_t *)&statusMsg);
@@ -130,6 +131,7 @@ static THD_FUNCTION( radioThread, arg) {
                     statusMsg->snr = status->Params.LoRa.SnrPkt;
                     statusMsg->rssi = status->Params.LoRa.RssiPkt;
                     // statusMsg->sig = status->Params.LoRa.SignalRssiPkt;
+                    
                     statusMsg->dbm = crcErrorCnt;
                     // if it does not post straight away then drop it.
                     if(chMBPostTimeout(statusMailbox, (msg_t)statusMsg, TIME_IMMEDIATE) != MSG_OK){

@@ -1,11 +1,10 @@
-
-#include "ch.h"
-
+#include <stdint.h>
+#include <string.h>
 
 #include "proto.h"
 #include "ibus.h"
 
-#include <string.h>
+
 
 #define IBUS_MAX_CHANNEL 12
 #define IBUS_BUFFSIZE 32
@@ -16,7 +15,7 @@ volatile uint32_t ibusChannelData[IBUS_MAX_CHANNEL];
 
 //__attribute__((optimize("O0")))
 
-static bool isChecksumOk(radioPacket_t* in) {
+static uint8_t isChecksumOk(radioPacket_t* in) {
     uint8_t* ibus =  &(in->data[0]);
     uint16_t chksum = 0;
     
