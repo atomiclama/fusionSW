@@ -4,21 +4,6 @@
 [submodule "chibios-contrib"]
 	path = src/ext/chibios-contrib
 	url = https://github.com/ChibiOS/ChibiOS-Contrib.git
-[submodule "deviation"]
-	path = src/ext/deviation
-	url = https://github.com/DeviationTX/deviation.git
-[submodule "openground"]
-	path = src/ext/openground
-	url = https://github.com/fishpepper/OpenGround.git
-[submodule "loralib"]
-	path = src/ext/loralib
-	url = https://github.com/jgromes/LoRaLib.git
-[submodule "lora-C-lib"]
-	path = src/ext/loraClib
-	url = https://github.com/Inteform/esp32-lora-library.git
-[submodule "src/ext/radioLib"]
-	path = src/ext/radioLib
-	url = https://github.com/jgromes/RadioLib.git
 [submodule "lib/littlevgl"]
 	path = lib/littlevgl
 	url = https://github.com/littlevgl/lvgl.git
