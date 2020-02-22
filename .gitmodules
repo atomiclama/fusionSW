@@ -7,3 +7,6 @@
 [submodule "lib/littlevgl"]
 	path = lib/littlevgl
 	url = https://github.com/littlevgl/lvgl.git
+[submodule "lib/chibios"]
+	path = lib/chibios
+	url = https://github.com/ChibiOS/ChibiOS.git
