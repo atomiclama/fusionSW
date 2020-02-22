@@ -33,7 +33,7 @@ int main(void) {
 
     // and now the file
 
-    inThread_ini();
+    inThread_init();
     modemThread_ini();
     outThread_ini();
     

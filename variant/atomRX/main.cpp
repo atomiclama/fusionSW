@@ -54,7 +54,7 @@ int main(void) {
     // matrix mapping stuff
     map_init();
 
-    inThread_ini();
+    inThread_init();
     modemThread_ini();
     outThread_ini();
     serialThread_ini();
@@ -64,16 +64,6 @@ int main(void) {
     // mailbox_t* txMailbox = map_getMailbox(R1rx);
 
     while (true) {    
-        // if (!palReadPad(GPIOC, GPIOC_BUTTON)) {
-        //     log_msg(LOG_ALL, "button pressed");
-        // }
-        // if(0) {
-        //     radioPacket_t* txMsg;
-        //     msg_alloc((uint8_t *)&txMsg);
-        //     txMsg->data[0] = 0xAA;
-        //     chMBPostTimeout(txMailbox, (msg_t)txMsg, TIME_INFINITE);
-        // }
-
         chThdSleepMilliseconds(100);
     }
 }

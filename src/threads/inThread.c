@@ -20,11 +20,10 @@ static THD_FUNCTION( Thread2, arg) {
     // find and configure the digital inputs.
 
     while (true) {
-
         chThdSleepMilliseconds(500);
     }
 }
 
-void inThread_ini(void) {
+void inThread_init(void) {
     chThdCreateStatic(waThread2, sizeof(waThread2), NORMALPRIO, Thread2, NULL);
 }

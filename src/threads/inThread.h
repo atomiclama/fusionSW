@@ -12,7 +12,7 @@
 extern "C" {
 #endif
 
-void inThread_ini(void);
+void inThread_init(void);
 
 #ifdef __cplusplus
 }
