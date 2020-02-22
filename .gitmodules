@@ -4,15 +4,9 @@
 [submodule "chibios-contrib"]
 	path = src/ext/chibios-contrib
 	url = https://github.com/ChibiOS/ChibiOS-Contrib.git
-[submodule "betaflight"]
-	path = src/ext/betaflight
-	url = https://github.com/betaflight/betaflight.git
 [submodule "deviation"]
 	path = src/ext/deviation
 	url = https://github.com/DeviationTX/deviation.git
-[submodule "opentx"]
-	path = src/ext/opentx
-	url = https://github.com/opentx/opentx.git
 [submodule "openground"]
 	path = src/ext/openground
 	url = https://github.com/fishpepper/OpenGround.git
@@ -25,6 +19,6 @@
 [submodule "src/ext/radioLib"]
 	path = src/ext/radioLib
 	url = https://github.com/jgromes/RadioLib.git
-[submodule "src/ext/littlevgl"]
-	path = src/ext/littlevgl
+[submodule "lib/littlevgl"]
+	path = lib/littlevgl
 	url = https://github.com/littlevgl/lvgl.git
