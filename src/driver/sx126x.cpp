@@ -3,8 +3,6 @@
 
 #include "sx126x.h"
 
-
-
 #include <cstring>
 
 volatile static uint8_t ocpreg;
@@ -65,7 +63,7 @@ void SX126x::init(loraConfig & config) {
     PacketParams_t packetParams;
     packetParams.PacketType = PACKET_TYPE_LORA;
     packetParams.Params.LoRa.InvertIQ = LORA_IQ_NORMAL;
-    packetParams.Params.LoRa.PreambleLength = 16;
+    packetParams.Params.LoRa.PreambleLength = config.preamble; // 16;
     packetParams.Params.LoRa.HeaderType = LORA_PACKET_IMPLICIT; // fixed
     packetParams.Params.LoRa.PayloadLength = 8;
     packetParams.Params.LoRa.CrcMode = LORA_CRC_ON;
@@ -455,17 +453,13 @@ void SX126x::SetDio3AsTcxoCtrl( RadioTcxoCtrlVoltage_t tcxoVoltage, uint32_t tim
 void SX126x::SetRfFrequency( uint32_t frequency )
 {
     uint8_t buf[4];
-    uint32_t freq = 0;
 
-
-
-    if( ImageCalibrated == false )
-    {
+    if( ImageCalibrated == false ) {
         CalibrateImage( frequency );
         ImageCalibrated = true;
     }
 
-    freq = ( uint32_t )( ( double )frequency / ( double )FREQ_STEP );
+    uint32_t freq = ( uint32_t )( ( double )frequency / ( double )FREQ_STEP );
     buf[0] = ( uint8_t )( ( freq >> 24 ) & 0xFF );
     buf[1] = ( uint8_t )( ( freq >> 16 ) & 0xFF );
     buf[2] = ( uint8_t )( ( freq >> 8 ) & 0xFF );

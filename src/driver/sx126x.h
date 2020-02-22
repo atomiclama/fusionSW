@@ -595,7 +595,8 @@ class loraConfig {
     RadioLoRaBandwidths_t bw;
     RadioLoRaCodingRates_t cr;
     RadioLoRaSpreadingFactors_t sf;
-    int8_t power = 10;//-5;
+    uint16_t preamble = 8;
+    int8_t power = 20;//-5;
     bool tcxo = false;
 };
 
