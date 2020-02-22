@@ -13,6 +13,21 @@
 
 static THD_WORKING_AREA(waThread1, 256);
 
+
+#define RSSI_SAMPLE_COUNT 16
+
+static int8_t updateRssiSamples(int8_t value)
+{
+    static int8_t samples[RSSI_SAMPLE_COUNT];
+    static uint8_t sampleIndex = 0;
+    static signed sum = 0;
+
+    sum += value - samples[sampleIndex];
+    samples[sampleIndex] = value;
+    sampleIndex = (sampleIndex + 1) % RSSI_SAMPLE_COUNT;
+    return sum / RSSI_SAMPLE_COUNT;
+}
+
 static THD_FUNCTION( Thread1, arg) {
     (void) arg;
 
@@ -20,23 +35,32 @@ static THD_FUNCTION( Thread1, arg) {
     mailbox_t* txMailbox = map_getMailbox(U2tx);
 
     bool level = true;
-    uint8_t cnt =0;
-    
+
+    systime_t prevMsg = chVTGetSystemTime();
+    int8_t snr;
+    int8_t rssi;
+
     while(rxMailbox) {
         radioPacket_t* rxMsg;
         uint8_t retVal = chMBFetchTimeout(rxMailbox, (msg_t*)&rxMsg, 10000);
         if(retVal == MSG_OK) {
-            if(++cnt > 10) {
-                cnt = 0;
 
-                int8_t snr = rxMsg->snr;
-                int8_t rssi = rxMsg->rssi;
-                int8_t crcErr = rxMsg->dbm;
+            systime_t curTime = chVTGetSystemTime();
+            systime_t tmpTime = curTime-prevMsg;      
+    
+            if(( tmpTime > 0x20) && txMailbox) {
+                prevMsg = curTime;
 
-                // got what we want so ditch msg
-                msg_free((uint8_t*)rxMsg);
+                // take and filter the highest recorded value;
+                // looks like this is done in BF
+                // rssi = updateRssiSamples(rssi);
 
-                log_msg(LOG_ALL, "SNR: %3d RSSI: %3d d",snr, rssi);
+
+                // missed packet detection LQ calculation.
+                // maybe 
+                // https://dsp.stackexchange.com/questions/20333/how-to-implement-a-moving-average-in-c-without-a-buffer
+                // ma_new = alpha * new_sample + (1-alpha) * ma_old
+                log_msg(LOG_ALL, "SNR: %3d RSSI: %3d",snr, rssi);
                
                 // https://www.loratracker.uk/lora-signal-quality-rssi-or-snr/
                 // scale snr so can be used in lQ display
@@ -56,19 +80,21 @@ static THD_FUNCTION( Thread1, arg) {
                 if(chMBPostTimeout(txMailbox, (msg_t)statusMsg, TIME_IMMEDIATE) != MSG_OK){
                     msg_free((uint8_t*)statusMsg);
                 }
-                
-            } else {
-    
-                // msg consumed
-                msg_free((uint8_t*)rxMsg);
+                // reset values for next pass
+                snr = -12;
+                rssi = -128;
+            }
 
-                // do some filtering 
-                // missed packet detection LQ calculation.
-                // maybe 
-                // https://dsp.stackexchange.com/questions/20333/how-to-implement-a-moving-average-in-c-without-a-buffer
-                // ma_new = alpha * new_sample + (1-alpha) * ma_old
+            if( rxMsg->snr > snr) {
+                snr = rxMsg->snr;
             }
             
+            if( rxMsg->rssi > rssi) {
+                rssi = rxMsg->rssi;
+            }
+
+            // got what we want so ditch msg
+            msg_free((uint8_t*)rxMsg);           
         } 
         level ^= 1;
         led.write(level);
