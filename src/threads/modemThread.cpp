@@ -40,9 +40,12 @@ const radioThreadCfg_s configR2 = {
 };
 #endif
 
-// Should give me -120dB sens
-// ~25Km link budget for 0dBm tx power. Yeah right!
-loraConfig config(LORA_BW_500, LORA_CR_4_5, LORA_SF7);
+// 2.5dB per SF change.
+
+// loraConfig config(LORA_BW_500, LORA_CR_4_5, LORA_SF7);   // -117dB -7.5 SNR 9.0ms
+loraConfig config(LORA_BW_500, LORA_CR_4_8, LORA_SF6);   // -112dB -5.0 SNR 5.6ms
+// loraConfig config(LORA_BW_500, LORA_CR_4_5, LORA_SF7);
+// loraConfig config(LORA_BW_500, LORA_CR_4_5, LORA_SF7);
 
 
 static THD_FUNCTION( radioThread, arg) {
@@ -85,7 +88,11 @@ static THD_FUNCTION( radioThread, arg) {
                     // rx a single packet then goto standby
                     radio->SetDioIrqParams(IRQ_RX_DONE|IRQ_TX_DONE|IRQ_PREAMBLE_DETECTED|IRQ_HEADER_VALID|IRQ_HEADER_ERROR|IRQ_CRC_ERROR, 0, 0, 0);
                     radio->ClearIrqStatus(IRQ_RADIO_ALL);
-                    radio->SetRxBoosted(0); 
+                    // used to be boosted that should have given ~3db extra gain.
+                    // but this setting gives me the ~3db gain 
+                    // go figure 
+                    // todo look into why this is.
+                    radio->SetRx(0); 
                     state = WAIT_;
                 }
                 break;
@@ -94,6 +101,11 @@ static THD_FUNCTION( radioThread, arg) {
                 if(status & (IRQ_PREAMBLE_DETECTED|IRQ_HEADER_VALID)) {
 
                     state = RX_;
+                    break;
+                }
+                if(status & (IRQ_HEADER_ERROR|IRQ_CRC_ERROR)) {
+                    crcErrorCnt++;
+                    state = SETUP_;
                     break;
                 }
                 if(txMailbox) {
@@ -112,7 +124,7 @@ static THD_FUNCTION( radioThread, arg) {
                 break;
             }
             case RX_: {
-                if(status & IRQ_CRC_ERROR) {
+                if(status & (IRQ_HEADER_ERROR|IRQ_CRC_ERROR)) {
                     crcErrorCnt++;
                     state = SETUP_;
                     break;
