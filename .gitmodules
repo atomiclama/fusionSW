@@ -25,3 +25,6 @@
 [submodule "src/ext/radioLib"]
 	path = src/ext/radioLib
 	url = https://github.com/jgromes/RadioLib.git
+[submodule "src/ext/littlevgl"]
+	path = src/ext/littlevgl
+	url = https://github.com/littlevgl/lvgl.git
