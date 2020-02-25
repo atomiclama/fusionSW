@@ -1,9 +1,9 @@
-[submodule "lib/littlevgl"]
-	path = lib/littlevgl
-	url = https://github.com/littlevgl/lvgl.git
 [submodule "lib/chibios"]
 	path = lib/chibios
 	url = https://github.com/ChibiOS/ChibiOS.git
 [submodule "support/cmake"]
 	path = support/cmake
 	url = https://github.com/ObKo/stm32-cmake.git
+[submodule "lib/lvgl"]
+	path = lib/lvgl
+	url = https://github.com/littlevgl/lvgl.git
