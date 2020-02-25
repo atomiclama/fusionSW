@@ -53,7 +53,7 @@ int main(void) {
     // matrix mapping stuff
     map_init();
 
-    inThread_ini();
+    inThread_init();
     modemThread_ini();
     outThread_ini();
     serialThread_ini();

@@ -69,9 +69,6 @@ add_subdirectory(src/protocol)
 add_subdirectory(src/threads)
 add_subdirectory(src/utils)
 
-add_subdirectory(src/ext)
-
-
 add_executable(${PROJECT_NAME}
   variant/atomRx/main.cpp
   variant/atomRx/board.c
