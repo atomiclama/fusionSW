@@ -4,3 +4,6 @@
 [submodule "lib/chibios"]
 	path = lib/chibios
 	url = https://github.com/ChibiOS/ChibiOS.git
+[submodule "support/cmake"]
+	path = support/cmake
+	url = https://github.com/ObKo/stm32-cmake.git
