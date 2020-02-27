@@ -18,65 +18,37 @@ set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
 cmake_minimum_required(VERSION 3.16)
 
-project(fusionSW VERSION 1.0 LANGUAGES C CXX ASM)
+project(fusion VERSION 1.0 LANGUAGES C CXX ASM)
 
 # specify the C++ standard
 #set(CMAKE_CXX_STANDARD 11)
 #set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-include_directories(variant/atomRx variant/atomRx/cfg)
 
-include_directories(
-        src/ext/chibios/os/common/portability/GCC
-        src/ext/chibios/os/common/startup/ARMCMx/compilers/GCC
-        src/ext/chibios/os/common/startup/ARMCMx/devices/STM32F4xx
-        src/ext/chibios/os/common/ext/ARM/CMSIS/Core/Include
-        src/ext/chibios/os/common/ext/ST/STM32F4xx
-        src/ext/chibios/os/hal/ports/common/ARMCMx
-        src/ext/chibios/os/hal/ports/STM32/STM32F4xx
-        src/ext/chibios/os/hal/ports/STM32/LLD/ADCv2 
-        src/ext/chibios/os/hal/ports/STM32/LLD/CANv1 
-        src/ext/chibios/os/hal/ports/STM32/LLD/CRYPv1 
-        src/ext/chibios/os/hal/ports/STM32/LLD/DACv1 
-        src/ext/chibios/os/hal/ports/STM32/LLD/DMAv2 
-        src/ext/chibios/os/hal/ports/STM32/LLD/EXTIv1 
-        src/ext/chibios/os/hal/ports/STM32/LLD/GPIOv2 
-        src/ext/chibios/os/hal/ports/STM32/LLD/I2Cv1 
-        src/ext/chibios/os/hal/ports/STM32/LLD/MACv1 
-        src/ext/chibios/os/hal/ports/STM32/LLD/OTGv1 
-        src/ext/chibios/os/hal/ports/STM32/LLD/QUADSPIv1 
-        src/ext/chibios/os/hal/ports/STM32/LLD/RTCv2 
-        src/ext/chibios/os/hal/ports/STM32/LLD/SPIv1 
-        src/ext/chibios/os/hal/ports/STM32/LLD/SDIOv1 
-        src/ext/chibios/os/hal/ports/STM32/LLD/TIMv1 
-        src/ext/chibios/os/hal/ports/STM32/LLD/USARTv1 
-        src/ext/chibios/os/hal/ports/STM32/LLD/xWDGv1 
-        src/ext/chibios/os/hal/osal/rt-nil 
-        src/ext/chibios/os/oslib/include 
-        src/ext/chibios/os/common/ports/ARMCMx 
-        src/ext/chibios/os/common/ports/ARMCMx/compilers/GCC 
-        src/ext/chibios/os/hal/lib/streams
-        
-        src/ext/chibios/os/rt/include
-        src/ext/chibios/os/hal/include
-        src/ext/chibios/os/license
-        )
+# need to do multiple cfg 
+# then can do link targets from a particular build cfg
+# so specify uP and a particular cfg file.
 
 
+
+# Each add here will add a link variant based on the current config.
+add_subdirectory(variant/fusionDisplay)
+add_subdirectory(variant/fusionTX)
+add_subdirectory(variant/atomRx)
+
+# need todo this a better way.
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/variant/fusionDisplay)
+
+# add the components that we need
+add_subdirectory(lib/lvgl)
 
 add_subdirectory(src/driver)
 add_subdirectory(src/protocol)
 add_subdirectory(src/threads)
 add_subdirectory(src/utils)
 
-add_executable(${PROJECT_NAME}
-  variant/atomRx/main.cpp
-  variant/atomRx/board.c
-)
 
-target_link_libraries(${PROJECT_NAME} PUBLIC proto util log thread driver chibios hal port lld)
 
-#target_include_directories(${PROJECT_NAME} PUBLIC )
 
        
               
