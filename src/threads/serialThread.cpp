@@ -108,9 +108,12 @@ static THD_FUNCTION( ThreadURx, arg) {
 
         uartReceiveTimeout(uartp, &(pbuf->cnt), pbuf->data, TIME_INFINITE);
 
+        // this works fine for blocks of data less than cnt 
+        // for greater need to setup the next block straight away
+
         if(pbuf->cnt != 0) {
             pbuf->stamp = chVTGetSystemTime();
-            // if it does not post staright away then drop it.
+            // if it does not post straight away then drop it.
             if(chMBPostTimeout(mailbox, (msg_t)pbuf, TIME_IMMEDIATE) != MSG_OK){
                 msg_free((uint8_t*)pbuf);
             }
@@ -137,13 +140,7 @@ static THD_FUNCTION( ThreadUTx, arg) {
             uartSendTimeout(uartp, &(pbuf->cnt), pbuf->data, TIME_INFINITE);
             // return the buffer
             msg_free((uint8_t*)pbuf);
-
-            // // this is a dirty hack.
-            // // if there is a msg already waiting then drop it probably duplicate from radio.
-            // retVal = chMBFetchTimeout(mailbox, (msg_t *)&pbuf, TIME_IMMEDIATE);
-            // if(retVal == MSG_OK) {
-            //     msg_free((uint8_t*)pbuf);
-            // }
+            chThdSleepMilliseconds(1);
         }
     }
 }

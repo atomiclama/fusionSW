@@ -68,13 +68,13 @@ static THD_FUNCTION( Thread1, arg) {
                 // -7.5 dbm limit for our SF7 
                 // lq +70 vgood.
                 // lq 35  prob not going to work.
-                uint8_t lq = 50 + (snr*2);
+                // uint8_t lq = 50 + (snr*2);
 
                 radioPacket_t* statusMsg;
                 msg_alloc((uint8_t *)&statusMsg);
                 
                 // must be at least 250ms update rate 
-                crsfEncodeStatus(statusMsg, rssi, lq);
+                crsfEncodeStatus(statusMsg, rssi, snr);
                 
                 // if it does not post straight away then drop it.
                 if(chMBPostTimeout(txMailbox, (msg_t)statusMsg, TIME_IMMEDIATE) != MSG_OK){

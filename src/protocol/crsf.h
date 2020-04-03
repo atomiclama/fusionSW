@@ -140,7 +140,7 @@ extern decodeRes_e crsfDecodeAir(radioPacket_t* out, rcData_s* in);
  */
 extern decodeRes_e crsfEncodeAir(radioPacket_t* out, radioPacket_t* in);
 
-extern decodeRes_e crsfEncodeStatus(radioPacket_t* out, int8_t rssi, uint8_t lq);
+extern decodeRes_e crsfEncodeStatus(radioPacket_t* out, int8_t rssi, int8_t snr);
 
 #ifdef __cplusplus
 }

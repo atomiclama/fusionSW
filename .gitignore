@@ -3,4 +3,5 @@
 .settings
 .vscode
 
-build*
+# build output directories
+build*/

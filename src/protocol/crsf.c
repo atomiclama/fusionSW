@@ -98,7 +98,7 @@ decodeRes_e crsfDecodeAir(radioPacket_t* out, rcData_s* airData) {
 }
 
 // generate a link status frame to send to the FC.
-decodeRes_e crsfEncodeStatus(radioPacket_t* out, int8_t rssi, uint8_t lq) {
+decodeRes_e crsfEncodeStatus(radioPacket_t* out, int8_t rssi, int8_t snr) {
 
     // this is the size of the frame that is to be transfered.
     out->cnt = sizeof(crsfStatsFrame_s);
@@ -113,8 +113,8 @@ decodeRes_e crsfEncodeStatus(radioPacket_t* out, int8_t rssi, uint8_t lq) {
     // hardcode some debug data just to test.
     buffer->stats.active_antenna = 0;
     buffer->stats.uplink_RSSI_1 = rssi * -1;
-    buffer->stats.uplink_Link_quality = lq;
-    buffer->stats.uplink_SNR = 10;          // not used by BF
+    buffer->stats.uplink_Link_quality = 100;
+    buffer->stats.uplink_SNR = snr;
     // perform the crc generation
     buffer->crc = doCrc(&(buffer->header.type), sizeof(crsfLinkStats_s)+1 );
     return DEC_PASS;
